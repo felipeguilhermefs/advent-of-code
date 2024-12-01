@@ -1,4 +1,5 @@
-local f = io.open("input1.txt", "rb") or os.exit(1)
+-- lua day1.lua <input file path>
+local f = io.open(arg[1], "rb") or os.exit(1)
 local INPUT = f:read("*a")
 f:close()
 
@@ -11,8 +12,8 @@ local function part1()
 
 	local left, right = Heap.new(), Heap.new()
 	for l, r in parseInput() do
-		left:push(tonumber(l))
-		right:push(tonumber(r))
+		left:push(l)
+		right:push(r)
 	end
 
 	local sum = 0
@@ -28,8 +29,8 @@ local function part2()
 
 	local left, right = Array.new(), HashMap.new()
 	for l, r in parseInput() do
-		left:insert(tonumber(l))
-		right:put(tonumber(r), right:get(tonumber(r), 0) + 1)
+		left:insert(l)
+		right:put(r, right:get(r, 0) + 1)
 	end
 
 	local sum = 0
