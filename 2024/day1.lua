@@ -1,7 +1,5 @@
--- lua day1.lua <input file path>
-local f = io.open(arg[1], "rb") or os.exit(1)
-local INPUT = f:read("*a")
-f:close()
+local shared = require("shared")
+local INPUT = shared.input()
 
 local function parseInput()
 	return INPUT:gmatch("(%d+)   (%d+)")
