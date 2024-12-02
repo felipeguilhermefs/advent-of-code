@@ -15,7 +15,7 @@ end
 local function isSafe(report)
 	local cur = nil
 	local asc = nil
-	for _, level in pairs(report) do
+	for index, level in pairs(report) do
 		if cur ~= nil then
 			local diff = level - cur
 
@@ -24,21 +24,22 @@ local function isSafe(report)
 			end
 
 			if asc and not (diff >= 1 and diff <= 3) then
-				return false
+				return false, index - 1
 			end
 			if not asc and not (diff <= -1 and diff >= -3) then
-				return false
+				return false, index - 1
 			end
 		end
 		cur = level
 	end
-	return true
+	return true, nil
 end
 
 local function part1(reports)
 	local count = 0
 	for _, report in pairs(reports) do
-		if isSafe(report) then
+		local safe, _ = isSafe(report)
+		if safe then
 			count = count + 1
 		end
 	end
@@ -48,14 +49,16 @@ end
 local function part2(reports)
 	local count = 0
 	for _, report in pairs(reports) do
-		if isSafe(report) then
+		local safe, unsafeIndex = isSafe(report)
+		if safe then
 			count = count + 1
 		else
-			-- Try skipping each index (very inefficient)
-			for i = 1, #report do
+			-- Try skipping each index starting from unsafe one
+			for i = unsafeIndex, #report do
 				local skipped = Array.new(report)
 				skipped:remove(i)
-				if isSafe(skipped) then
+				safe, _ = isSafe(skipped)
+				if safe then
 					count = count + 1
 					break
 				end
