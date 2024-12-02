@@ -1,8 +1,8 @@
-local shared = require("shared")
-local INPUT = shared.input()
-
 local function parseInput()
-	return INPUT:gmatch("(%d+)   (%d+)")
+	local f = assert(io.open("input1.txt", "rb"), "Open File")
+	local content = f:read("*a")
+	f:close()
+	return content:gmatch("(%d+)   (%d+)")
 end
 
 local function part1()
