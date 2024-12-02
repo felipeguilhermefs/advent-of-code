@@ -57,21 +57,15 @@ local function part2(reports)
 		local safe, errorIndex = isSafe(report)
 		if safe then
 			count = count + 1
-			goto continue
+		else
+			for i=errorIndex-1, errorIndex do
+				safe, _ = isSafe(report, i)
+				if safe then
+					count = count + 1
+					break
+				end
+			end
 		end
-
-		safe, _ = isSafe(report, errorIndex-1)
-		if safe then
-			count = count + 1
-			goto continue
-		end
-
-		safe, _ = isSafe(report, errorIndex)
-			if safe then
-			count = count + 1
-		end
-
-		::continue::
 	end
 	return count
 end
