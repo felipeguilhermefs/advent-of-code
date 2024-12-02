@@ -2,7 +2,7 @@ local Array = require("ff.collections.array")
 
 local function parseReports()
 	local reports = Array.new()
-	for line in io.lines("input2.txt") do
+	for line in io.lines(arg[1]) do
 		local report = Array.new()
 		for level in line:gmatch("%d+") do
 			report:insert(level)

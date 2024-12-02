@@ -1,5 +1,5 @@
 local function parseInput()
-	local f = assert(io.open("input1.txt", "rb"), "Open File")
+	local f = assert(io.open(arg[1], "rb"), "Open File")
 	local content = f:read("*a")
 	f:close()
 	return content:gmatch("(%d+)   (%d+)")
