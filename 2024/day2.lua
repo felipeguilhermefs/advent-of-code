@@ -1,13 +1,11 @@
-local Array = require("ff.collections.array")
-
 local function parseReports()
-	local reports = Array.new()
+	local reports = {}
 	for line in io.lines(arg[1]) do
-		local report = Array.new()
+		local report = {}
 		for level in line:gmatch("%d+") do
-			report:insert(level)
+			table.insert(report, level)
 		end
-		reports:insert(report)
+		table.insert(reports, report)
 	end
 	return reports
 end
