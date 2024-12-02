@@ -12,10 +12,13 @@ local function parseReports()
 	return reports
 end
 
-local function isSafe(report)
+local function isSafe(report, skip)
 	local cur = nil
 	local asc = nil
 	for index, level in pairs(report) do
+		if index == skip then
+			goto continue
+		end
 		if cur ~= nil then
 			local diff = level - cur
 
@@ -31,6 +34,8 @@ local function isSafe(report)
 			end
 		end
 		cur = level
+
+	    ::continue::
 	end
 	return true, nil
 end
@@ -49,21 +54,24 @@ end
 local function part2(reports)
 	local count = 0
 	for _, report in pairs(reports) do
-		local safe, unsafeIndex = isSafe(report)
+		local safe, errorIndex = isSafe(report)
 		if safe then
 			count = count + 1
-		else
-			-- Try skipping the unsafe index and the one before
-			for i = unsafeIndex - 1, unsafeIndex do
-				local skipped = Array.new(report)
-				skipped:remove(i)
-				safe, _ = isSafe(skipped)
-				if safe then
-					count = count + 1
-					break
-				end
-			end
+			goto continue
 		end
+
+		safe, _ = isSafe(report, errorIndex-1)
+		if safe then
+			count = count + 1
+			goto continue
+		end
+
+		safe, _ = isSafe(report, errorIndex)
+			if safe then
+			count = count + 1
+		end
+
+		::continue::
 	end
 	return count
 end
