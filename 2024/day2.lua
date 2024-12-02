@@ -24,10 +24,10 @@ local function isSafe(report)
 			end
 
 			if asc and not (diff >= 1 and diff <= 3) then
-				return false, index - 1
+				return false, index
 			end
 			if not asc and not (diff <= -1 and diff >= -3) then
-				return false, index - 1
+				return false, index
 			end
 		end
 		cur = level
@@ -53,8 +53,8 @@ local function part2(reports)
 		if safe then
 			count = count + 1
 		else
-			-- Try skipping each index starting from unsafe one
-			for i = unsafeIndex, #report do
+			-- Try skipping the unsafe index and the one before
+			for i = unsafeIndex - 1, unsafeIndex do
 				local skipped = Array.new(report)
 				skipped:remove(i)
 				safe, _ = isSafe(skipped)
