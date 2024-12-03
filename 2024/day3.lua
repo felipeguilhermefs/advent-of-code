@@ -1,4 +1,4 @@
-local f = assert(io.open("day3.txt", "rb"))
+local f = assert(io.open(arg[1], "rb"))
 local memorymap = f:read("*a")
 f:close()
 
