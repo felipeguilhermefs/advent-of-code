@@ -27,21 +27,6 @@ local function findSafeMiddle(nodes, line)
 	return pages[math.floor(#pages / 2) + 1]
 end
 
-local function part1()
-	local sum = 0
-	local nodes = HashMap.new()
-	for line in io.lines(arg[1]) do
-		local prev, next = line:match("(%d+)|(%d+)")
-		if prev then
-			addNodes(nodes, prev, next)
-		elseif line ~= "" then
-			sum = sum + findSafeMiddle(nodes, line)
-		end
-	end
-
-	return sum
-end
-
 local function findUnsafeMiddle(nodes, line)
 	local pages = {}
 
@@ -71,7 +56,7 @@ local function findUnsafeMiddle(nodes, line)
 	return pages[math.floor(#pages / 2) + 1].value
 end
 
-local function part2()
+local function run(fn)
 	local sum = 0
 	local nodes = HashMap.new()
 	for line in io.lines(arg[1]) do
@@ -79,12 +64,12 @@ local function part2()
 		if prev then
 			addNodes(nodes, prev, next)
 		elseif line ~= "" then
-			sum = sum + findUnsafeMiddle(nodes, line)
+			sum = sum + fn(nodes, line)
 		end
 	end
 
 	return sum
 end
 
-print("Part 1", part1())
-print("Part 2", part2())
+print("Part 1", run(findSafeMiddle))
+print("Part 2", run(findUnsafeMiddle))
