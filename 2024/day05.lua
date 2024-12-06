@@ -11,65 +11,50 @@ local function addNodes(nodes, prev, next)
 	prevNode.children:put(next, nextNode)
 end
 
-local function findSafeMiddle(nodes, line)
+local function findMiddle(nodes, line)
 	local pages = {}
-
-	for value in line:gmatch("(%d+)") do
-		local node = nodes:get(value)
-		if node == nil then
-			return 0
-		end
-		table.insert(pages, value)
-
-		nodes = node.children
-	end
-
-	return pages[math.floor(#pages / 2) + 1]
-end
-
-local function findUnsafeMiddle(nodes, line)
-	local pages = {}
-
-	for value in line:gmatch("(%d+)") do
-		local node = nodes:get(value)
-		table.insert(pages, node)
-	end
 
 	local safe = true
-	for _, page in pairs(pages) do
-		local node = nodes:get(page.value)
+	local curNodes = nodes
+	for value in line:gmatch("(%d+)") do
+		local node = curNodes:get(value)
 		if node == nil then
 			safe = false
-			break
+		else
+			curNodes = node.children
 		end
-		nodes = node.children
+		table.insert(pages, nodes:get(value))
 	end
 
-	if safe then
-		return 0
+	if not safe then
+		table.sort(pages, function(a, b)
+			return a.children:contains(b.value)
+		end)
 	end
 
-	table.sort(pages, function(a, b)
-		return a.children:contains(b.value)
-	end)
-
-	return pages[math.floor(#pages / 2) + 1].value
+	return pages[math.floor(#pages / 2) + 1].value, safe
 end
 
-local function run(fn)
-	local sum = 0
+local function run()
+	local safeSum, unsafeSum = 0, 0
 	local nodes = HashMap.new()
 	for line in io.lines(arg[1]) do
 		local prev, next = line:match("(%d+)|(%d+)")
 		if prev then
 			addNodes(nodes, prev, next)
 		elseif line ~= "" then
-			sum = sum + fn(nodes, line)
+			local middle, safe = findMiddle(nodes, line)
+			if safe then
+				safeSum = safeSum + findMiddle(nodes, line)
+			else
+				unsafeSum = unsafeSum + findMiddle(nodes, line)
+			end
 		end
 	end
 
-	return sum
+	return safeSum, unsafeSum
 end
 
-print("Part 1", run(findSafeMiddle))
-print("Part 2", run(findUnsafeMiddle))
+local safeSum, unsafeSum = run()
+print("Part 1", safeSum)
+print("Part 2", unsafeSum)
