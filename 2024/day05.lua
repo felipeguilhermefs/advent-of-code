@@ -45,9 +45,9 @@ local function run()
 		elseif line ~= "" then
 			local middle, safe = findMiddle(nodes, line)
 			if safe then
-				safeSum = safeSum + findMiddle(nodes, line)
+				safeSum = safeSum + middle
 			else
-				unsafeSum = unsafeSum + findMiddle(nodes, line)
+				unsafeSum = unsafeSum + middle
 			end
 		end
 	end
