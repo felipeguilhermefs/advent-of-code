@@ -1,18 +1,12 @@
-local ADD = "+"
-local MUL = "*"
-local CONCAT = "||"
-
-local EXEC = {
-	[ADD] = function(a, b)
-		return a + b
-	end,
-	[MUL] = function(a, b)
-		return a * b
-	end,
-	[CONCAT] = function(a, b)
-		return tonumber(a .. b)
-	end,
-}
+local function add(a, b)
+	return a + b
+end
+local function mul(a, b)
+	return a * b
+end
+local function concat(a, b)
+	return tonumber(a .. b)
+end
 
 local function readInput()
 	local records = {}
@@ -36,7 +30,7 @@ local function isPossible(ops, values, expected, actual, i)
 	end
 
 	for _, op in pairs(ops) do
-		if isPossible(ops, values, expected, EXEC[op](actual, values[i]), i + 1) then
+		if isPossible(ops, values, expected, op(actual, values[i]), i + 1) then
 			return true
 		end
 	end
@@ -55,5 +49,5 @@ end
 
 local RECORDS = readInput()
 
-print("Part1", run(RECORDS, { ADD, MUL }))
-print("Part2", run(RECORDS, { ADD, MUL, CONCAT }))
+print("Part1", run(RECORDS, { add, mul }))
+print("Part2", run(RECORDS, { add, mul, concat }))
