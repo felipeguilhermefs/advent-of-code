@@ -1,37 +1,59 @@
-local function isPossible(test, values, i, acc)
-	acc = acc or 0
-	i = i + 1
-	if acc == test then
-		return true
-	end
+local ADD = "+"
+local MUL = "*"
+local CONCAT = "||"
 
-	if acc > test then
+local EXEC = {
+	[ADD] = function(a, b)
+		return a + b
+	end,
+	[MUL] = function(a, b)
+		return a * b
+	end,
+	[CONCAT] = function(a, b)
+		return tonumber(a .. b)
+	end,
+}
+
+local function readInput()
+	local records = {}
+	for line in io.lines(arg[1]) do
+		local values = {}
+		for value in line:gmatch("(%d+)") do
+			table.insert(values, tonumber(value))
+		end
+		table.insert(records, values)
+	end
+	return records
+end
+
+local function isPossible(ops, values, expected, actual, i)
+	if actual > expected then
 		return false
 	end
 
 	if i > #values then
-		return false
+		return actual == expected
 	end
 
-	if isPossible(test, values, i, (acc or 0) + values[i]) then
-		return true
+	for _, op in pairs(ops) do
+		if isPossible(ops, values, expected, EXEC[op](actual, values[i]), i + 1) then
+			return true
+		end
 	end
-
-	return isPossible(test, values, i, (acc or 1) * values[i])
+	return false
 end
 
-local function part1()
+local function run(records, ops)
 	local sum = 0
-	for line in io.lines(arg[1]) do
-		local test = {}
-		for value in line:gmatch("(%d+)") do
-			table.insert(test, tonumber(value))
-		end
-		if isPossible(test[1], test, 1) then
-			sum = sum + test[1]
+	for _, values in pairs(records) do
+		if isPossible(ops, values, values[1], values[2], 3) then
+			sum = sum + values[1]
 		end
 	end
-	return sum
+	return string.format("%0.f", sum)
 end
 
-print("Part1", part1())
+local RECORDS = readInput()
+
+print("Part1", run(RECORDS, { ADD, MUL }))
+print("Part2", run(RECORDS, { ADD, MUL, CONCAT }))
