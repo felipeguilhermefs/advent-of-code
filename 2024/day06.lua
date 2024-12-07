@@ -1,14 +1,3 @@
--- Read input file into a grid
-local GRID = {}
-for line in io.lines(arg[1]) do
-	local row = {}
-	for tile in line:gmatch(".") do
-		table.insert(row, tile)
-	end
-	table.insert(GRID, row)
-end
-
--- Grid directions
 local N = { -1, 0 }
 local E = { 0, 1 }
 local S = { 1, 0 }
@@ -26,131 +15,117 @@ local DIR = {
 	["<"] = W,
 }
 
-local function inGrid(row, col)
-	if row < 1 or row > #GRID then
-		return false
-	end
+local BLOCK = "#"
+local VISITED = "X"
 
-	if col < 1 or col > #GRID[row] then
-		return false
-	end
-
-	return true
-end
-
-local function copyGrid()
-	local grid = {}
-	for _, row in pairs(GRID) do
-		local newRow = {}
-		for _, pos in pairs(row) do
-			table.insert(newRow, pos)
-		end
-		table.insert(grid, newRow)
-	end
-	return grid
-end
-
-local function newGuard(row, col, dir)
-	return { row = row, col = col, dir = dir }
-end
-
-local function findGuard()
-	local dir
-	for row, _ in pairs(GRID) do
-		for col, pos in pairs(GRID[row]) do
-			dir = DIR[pos]
-			if dir then
-				return newGuard(row, col, dir)
+local function readInput()
+	local map = {}
+	local guard
+	for line in io.lines(arg[1]) do
+		local row = {}
+		for pos in line:gmatch(".") do
+			if guard == nil then
+				local dir = DIR[pos]
+				if dir then
+					guard = { row = #map + 1, col = #row + 1, dir = dir }
+				end
 			end
+			row[#row + 1] = pos
 		end
+		map[#map + 1] = row
 	end
-	return nil
+	return map, assert(guard)
 end
 
-local function part1()
-	local guard = assert(findGuard())
-	local grid = copyGrid()
-
-	local positions = 1
-	while true do
-		local nextRow, nextCol = guard.row + guard.dir[1], guard.col + guard.dir[2]
-		if not inGrid(nextRow, nextCol) then
-			return positions
-		end
-
-		if grid[nextRow][nextCol] == "#" then
-			guard.dir = guard.dir.next
-		end
-		if grid[guard.row][guard.col] ~= "X" then
-			grid[guard.row][guard.col] = "X"
-			positions = positions + 1
-		end
-		guard.row = guard.row + guard.dir[1]
-		guard.col = guard.col + guard.dir[2]
+local function inMap(map, row, col)
+	if row < 1 or row > #map then
+		return false
 	end
-end
 
-local function isLoop(grid, guard)
-	local limit = #grid * #grid[1]
-	for _ = 1, limit do
-		local nextRow, nextCol = guard.row + guard.dir[1], guard.col + guard.dir[2]
-		if not inGrid(nextRow, nextCol) then
-			return false
-		end
-
-		if grid[nextRow][nextCol] == "#" then
-			guard.dir = guard.dir.next
-		end
-		guard.row = guard.row + guard.dir[1]
-		guard.col = guard.col + guard.dir[2]
+	if col < 1 or col > #map[row] then
+		return false
 	end
+
 	return true
 end
 
-local function findGuardPath()
-	local guard = assert(findGuard())
-	local grid = copyGrid()
+local function markPath(map, guard)
+	local distance = 0
+	local row, col, dir = guard.row, guard.col, guard.dir
+	while inMap(map, row, col) do
+		local nextRow, nextCol = row + dir[1], col + dir[2]
 
-	local positions = {}
-	while true do
-		local nextRow, nextCol = guard.row + guard.dir[1], guard.col + guard.dir[2]
-
-		if positions[guard.row] == nil then
-			positions[guard.row] = {}
-		end
-		positions[guard.row][guard.col] = true
-
-		if not inGrid(nextRow, nextCol) then
-			return positions
+		if inMap(map, nextRow, nextCol) and map[nextRow][nextCol] == BLOCK then
+			dir = dir.next
 		end
 
-		if grid[nextRow][nextCol] == "#" then
-			guard.dir = guard.dir.next
+		if map[row][col] ~= VISITED then
+			map[row][col] = VISITED
+			distance = distance + 1
 		end
-		guard.row = guard.row + guard.dir[1]
-		guard.col = guard.col + guard.dir[2]
+
+		row = row + dir[1]
+		col = col + dir[2]
 	end
+
+	return distance
 end
 
-local function part2()
-	local guard = assert(findGuard())
-	local positions = findGuardPath()
+local function isLoop(map, guard)
+	local path = {}
+	local row, col, dir = guard.row, guard.col, guard.dir
+	while inMap(map, row, col) do
+		local key = string.format("%d:%d:%d:%d", row, col, dir[1], dir[2])
+		if path[key] then
+			return true
+		end
+
+		local nextRow, nextCol = row + dir[1], col + dir[2]
+
+		if inMap(map, nextRow, nextCol) and map[nextRow][nextCol] == BLOCK then
+			dir = dir.next
+		else
+			path[key] = true
+			row = row + dir[1]
+			col = col + dir[2]
+		end
+
+	end
+
+	return false
+end
+
+local function countLoops(map, guard)
 	local count = 0
-	for row, _ in pairs(positions) do
-		for col, _ in pairs(positions[row]) do
+	for row, _ in pairs(map) do
+		for col, pos in pairs(map[row]) do
+			if pos ~= VISITED then
+				goto continue
+			end
+
 			if row == guard.row and col == guard.col then
 				goto continue
 			end
-			local grid = copyGrid()
-			grid[row][col] = "#"
-			if isLoop(grid, newGuard(guard.row, guard.col, guard.dir)) then
+
+			map[row][col] = BLOCK
+			if isLoop(map, guard) then
 				count = count + 1
 			end
+			map[row][col] = pos
+
 			::continue::
 		end
 	end
 	return count
 end
 
-print("Part 1", part1())
-print("Part 2", part2())
+local function run()
+	local map, guard = readInput()
+	local distance = markPath(map, guard)
+
+	return distance, countLoops(map, guard)
+end
+
+local part1, part2 = run()
+print("Part 1", part1)
+print("Part 2", part2)
