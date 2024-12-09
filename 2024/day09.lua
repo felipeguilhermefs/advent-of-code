@@ -7,34 +7,10 @@ local function readInput()
 	return content
 end
 
-local function unzip(filemap)
-	local disk = {}
-	local isEmpty = false
-	local sid = 0
-	for char in filemap:gmatch("%d") do
-		local digit = tonumber(char)
-
-		for _ = 1, digit do
-			if isEmpty then
-				table.insert(disk, EMPTY)
-			else
-				table.insert(disk, sid)
-			end
-		end
-
-		if not isEmpty then
-			sid = sid + 1
-		end
-
-		isEmpty = not isEmpty
-	end
-	return disk
-end
-
 local function unzipIndexed(filemap)
 	local disk = {}
-	local free = {}
-	local files = {}
+	local indexFree = {}
+	local indexFiles = {}
 	local isFree = false
 	local sid = 0
 
@@ -51,19 +27,19 @@ local function unzipIndexed(filemap)
 
 		-- Keep index and size of each space.
 		if isFree then
-			table.insert(free, { #disk + 1 - digit, digit, EMPTY })
+			table.insert(indexFree, { index = #disk + 1 - digit, size = digit, sid = EMPTY })
 		else
-			table.insert(files, { #disk + 1 - digit, digit, sid })
+			table.insert(indexFiles, { index = #disk + 1 - digit, size = digit, sid = sid })
 			sid = sid + 1
 		end
 
 		isFree = not isFree
 	end
 
-	return disk, files, free
+	return disk, indexFiles, indexFree
 end
 
-local function defragFull(disk)
+local function defrag(disk)
 	local low, high = 1, #disk
 	while low < high do
 		-- Low looks for empty spaces
@@ -84,29 +60,28 @@ local function defragFull(disk)
 	end
 end
 
-local function defragKeepFiles(disk, files, free)
+local function defragIndexFiles(indexFiles, indexFree)
 	-- Look from last file to first
-	for i = #files, 1, -1 do
-		local file = files[i]
+	for i = #indexFiles, 1, -1 do
+		local file = indexFiles[i]
 
 		-- Look at every empty space
-		for j = 1, #free do
-			local empty = free[j]
+		for j = 1, #indexFree do
+			local free = indexFree[j]
 
-			-- File should fit and be after empty space for the left shift
-			if empty[1] < file[1] and file[2] <= empty[2] then
-				-- Copy the file to empty space
-				for k = empty[1], empty[1] + file[2] - 1 do
-					disk[k] = file[3]
-				end
-				-- Free the previous file space
-				for k = file[1], file[1] + file[2] - 1 do
-					disk[k] = EMPTY
-				end
+			-- We only care about free space before the file
+			if free.index >= file.index then
+				break
+			end
+
+			-- File should fit the empty space
+			if file.size <= free.size then
+				-- Move the file to empty space
+				file.index = free.index
 
 				-- Update the free space index
-				empty[2] = empty[2] - file[2]
-				empty[1] = empty[1] + file[2]
+				free.size = free.size - file.size
+				free.index = free.index + file.size
 
 				-- We are done for this file
 				break
@@ -115,32 +90,39 @@ local function defragKeepFiles(disk, files, free)
 	end
 end
 
-local function checksum(arr)
+local function checksum(disk)
 	local sum = 0
-	for i, value in pairs(arr) do
-		if value ~= EMPTY then
-			sum = sum + (i - 1) * value
+	for i, sid in pairs(disk) do
+		if sid ~= EMPTY then
+			sum = sum + (i - 1) * sid
 		end
 	end
 	return sum
 end
 
-local function part1(filemap)
-	local disk = unzip(filemap)
+local function checksumIndex(indexFiles)
+	local sum = 0
 
-	defragFull(disk)
+	for _, file in pairs(indexFiles) do
+		for i = file.index, file.index + file.size - 1 do
+			sum = sum + (i - 1) * file.sid
+		end
+	end
 
-	return checksum(disk)
+	return sum
 end
 
-local function part2(filemap)
-	local disk, files, free = unzipIndexed(filemap)
+local function run()
+	local filemap = readInput()
+	local disk, indexFiles, indexFree = unzipIndexed(filemap)
 
-	defragKeepFiles(disk, files, free)
+	defrag(disk)
 
-	return checksum(disk)
+	defragIndexFiles(indexFiles, indexFree)
+
+	return checksum(disk), checksumIndex(indexFiles)
 end
 
-local FILEMAP = readInput()
-print("Part 1", part1(FILEMAP))
-print("Part 2", part2(FILEMAP))
+local part1, part2 = run()
+print("Part 1", part1)
+print("Part 2", part2)
