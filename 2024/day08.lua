@@ -1,3 +1,5 @@
+local Set = require("ff.collections.set")
+
 local function readInput()
 	local map = {}
 	for line in io.lines(arg[1]) do
@@ -10,14 +12,12 @@ local function readInput()
 	return map
 end
 
-local MAP = readInput()
-
-local function inMap(antinode)
-	if antinode[1] < 1 or antinode[1] > #MAP then
+local function inMap(map, antinode)
+	if antinode[1] < 1 or antinode[1] > #map then
 		return false
 	end
 
-	if antinode[2] < 1 or antinode[2] > #MAP[1] then
+	if antinode[2] < 1 or antinode[2] > #map[1] then
 		return false
 	end
 
@@ -28,27 +28,7 @@ local function mirror(a, b)
 	return a - (b - a)
 end
 
-local function accumulate(antinodes, freq, antennas)
-	for i = 1, #antennas do
-		for j = i, #antennas do
-			local a = antennas[i]
-			local b = antennas[j]
-
-			local antinodeA = { mirror(a[1], b[1]), mirror(a[2], b[2]) }
-			if inMap(antinodeA) and MAP[antinodeA[1]][antinodeA[2]] ~= freq then
-				local key = string.format("%d:%d", antinodeA[1], antinodeA[2])
-				antinodes[key] = antinodeA
-			end
-			local antinodeB = { mirror(b[1], a[1]), mirror(b[2], a[2]) }
-			if inMap(antinodeB) and MAP[antinodeB[1]][antinodeB[2]] ~= freq then
-				local key = string.format("%d:%d", antinodeB[1], antinodeB[2])
-				antinodes[key] = antinodeB
-			end
-		end
-	end
-end
-
-local function part1(map)
+local function groupAntennas(map)
 	local antennas = {}
 	for row, _ in pairs(map) do
 		for col, pos in pairs(map[row]) do
@@ -66,18 +46,80 @@ local function part1(map)
 		end
 	end
 
-	local antinodes = {}
-	for freq, a in pairs(antennas) do
-		accumulate(antinodes, freq, a)
-	end
-
-	local count = 0
-	for k, _ in pairs(antinodes) do
-		print(k)
-		count = count + 1
-	end
-
-	return count
+	return antennas
 end
 
-print("Part 1", part1(MAP))
+local function newAntinode(a, b)
+	return { mirror(a[1], b[1]), mirror(a[2], b[2]) }
+end
+
+local function add(antinodes, toAdd)
+	for _, antinode in pairs(toAdd) do
+		local key = string.format("%d:%d", antinode[1], antinode[2])
+		antinodes:add(key)
+	end
+end
+
+local function genAntinodes(map, a, b, frequency)
+	local antinodes = {}
+
+	local antinodeA = newAntinode(a, b)
+	if inMap(map, antinodeA) and map[antinodeA[1]][antinodeA[2]] ~= frequency then
+		table.insert(antinodes, antinodeA)
+	end
+
+	local antinodeB = newAntinode(b, a)
+	if inMap(map, antinodeB) and map[antinodeB[1]][antinodeB[2]] ~= frequency then
+		table.insert(antinodes, antinodeB)
+	end
+
+	return antinodes
+end
+
+local function resonate(map, antinodes, a, b)
+	local antinode = newAntinode(a, b)
+	while inMap(map, antinode) do
+		table.insert(antinodes, antinode)
+
+		b = a
+		a = antinode
+
+		ntinode = newAntinode(a, b)
+	end
+end
+
+local function genAntinodesWithResonance(map, a, b)
+	local antinodes = {}
+	table.insert(antinodes, a)
+	table.insert(antinodes, b)
+
+	resonate(map, antinodes, a, b)
+	resonate(map, antinodes, b, a)
+
+	return antinodes
+end
+
+local function run()
+	local map = readInput()
+	local frequencies = groupAntennas(map)
+
+	local antinodes = Set.new()
+	local antinodesWithResonance = Set.new()
+	for frequency, antennas in pairs(frequencies) do
+		for i = 1, #antennas do
+			for j = i + 1, #antennas do
+				local a = antennas[i]
+				local b = antennas[j]
+
+				add(antinodes, genAntinodes(map, a, b, frequency))
+				add(antinodesWithResonance, genAntinodesWithResonance(map, a, b))
+			end
+		end
+	end
+
+	return #antinodes, #antinodesWithResonance
+end
+
+local part1, part2 = run()
+print("Part 1", part1)
+print("Part 2", part2)
