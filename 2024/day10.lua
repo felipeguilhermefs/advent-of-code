@@ -31,65 +31,48 @@ local function inMap(map, row, col)
 	return true
 end
 
-local function findPeaks(map, row, col, height, reached)
-	reached = reached or Set.new()
+local function walkTrails(map, row, col, height, peaks)
+	height = height or 0
+	peaks = peaks or Set.new()
 
 	if not inMap(map, row, col) then
-		return reached
+		return peaks, 0
 	end
 
 	if map[row][col] ~= height then
-		return reached
+		return peaks, 0
 	end
 
 	if height == 9 then
-		reached:add(string.format("%d:%d", row, col))
-		return reached
+		peaks:add(string.format("%d:%d", row, col))
+		return peaks, 1
 	end
 
+	local trails = 0
 	for _, dir in pairs(DIRECTIONS) do
-		findPeaks(map, row + dir[1], col + dir[2], height + 1, reached)
+		local _, count = walkTrails(map, row + dir[1], col + dir[2], height + 1, peaks)
+		trails = trails + count
 	end
 
-	return reached
-end
-
-local function countTrails(map, row, col, height)
-	if not inMap(map, row, col) then
-		return 0
-	end
-
-	if map[row][col] ~= height then
-		return 0
-	end
-
-	if height == 9 then
-		return 1
-	end
-
-	local count = 0
-	for _, dir in pairs(DIRECTIONS) do
-		count = count + countTrails(map, row + dir[1], col + dir[2], height + 1)
-	end
-	return count
+	return peaks, trails
 end
 
 local function run()
 	local map = readInput()
 	local score = 0
-	local nTrails = 0
+	local trails = 0
 
 	for row, _ in pairs(map) do
 		for col, height in pairs(map[row]) do
 			if height == 0 then
-				local reached = findPeaks(map, row, col, height)
-				score = score + #reached
-				nTrails = nTrails + countTrails(map, row, col, height)
+				local peaks, count = walkTrails(map, row, col)
+				score = score + #peaks
+				trails = trails + count
 			end
 		end
 	end
 
-	return score, nTrails
+	return score, trails
 end
 
 local part1, part2 = run()
