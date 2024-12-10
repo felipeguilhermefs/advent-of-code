@@ -54,20 +54,42 @@ local function findPeaks(map, row, col, height, reached)
 	return reached
 end
 
+local function countTrails(map, row, col, height)
+	if not inMap(map, row, col) then
+		return 0
+	end
+
+	if map[row][col] ~= height then
+		return 0
+	end
+
+	if height == 9 then
+		return 1
+	end
+
+	local count = 0
+	for _, dir in pairs(DIRECTIONS) do
+		count = count + countTrails(map, row + dir[1], col + dir[2], height + 1)
+	end
+	return count
+end
+
 local function run()
 	local map = readInput()
 	local score = 0
+	local nTrails = 0
 
 	for row, _ in pairs(map) do
 		for col, height in pairs(map[row]) do
 			if height == 0 then
 				local reached = findPeaks(map, row, col, height)
 				score = score + #reached
+				nTrails = nTrails + countTrails(map, row, col, height)
 			end
 		end
 	end
 
-	return score, nil
+	return score, nTrails
 end
 
 local part1, part2 = run()
