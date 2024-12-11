@@ -1,45 +1,12 @@
-local function Node(value, next, previous)
-	local n = { value = value, next = next, previous = previous }
-	return n
-end
-
-local function DoubleLinkedList()
-	local ll = { front = Node(), back = Node(), len = 0 }
-
-	ll.front.next = ll.back
-	ll.back.previous = ll.front
-
-	ll.pushBefore = function(node, value)
-		local new = Node(value, node, node.previous)
-		node.previous.next = new
-		node.previous = new
-		ll.len = ll.len + 1
-	end
-
-	ll.str = function()
-		local arr = {}
-		local cur = ll.front.next
-		while cur ~= ll.back do
-			table.insert(arr, cur.value)
-			cur = cur.next
-		end
-
-		return table.concat(arr, " , ")
-	end
-
-	return ll
-end
-
 local function readInput()
 	local f = assert(io.open(arg[1], "rb"))
 	local content = f:read("*a")
 	f:close()
 
-	local stones = DoubleLinkedList()
-	for char in content:gmatch("%d+") do
-		stones.pushBefore(stones.back, tonumber(char))
+	local stones = {}
+	for num in content:gmatch("%d+") do
+		stones[num] = (stones[num] or 0) + 1
 	end
-
 	return stones
 end
 
@@ -68,15 +35,34 @@ local function shift(stones)
 	end
 end
 
-local function run()
+local function run(times)
 	local stones = readInput()
 
-	for _ = 1, 25 do
-		shift(stones)
+	for _ = 1, times do
+		local cache = {}
+		for stone, count in pairs(stones) do
+			if stone == "0" then
+				cache["1"] = (cache["1"] or 0) + count
+			elseif #stone % 2 == 0 then
+				local first = tostring(tonumber(stone:sub(1, #stone // 2)))
+				cache[first] = (cache[first] or 0) + count
+				local second = tostring(tonumber(stone:sub(#stone // 2 + 1, #stone)))
+				cache[second] = (cache[second] or 0) + count
+			else
+				local num = tostring(tonumber(stone) * 2024)
+				cache[num] = (cache[num] or 0) + count
+			end
+		end
+
+		stones = cache
 	end
 
-	return stones.len
+	local total = 0
+	for _, count in pairs(stones) do
+		total = total + count
+	end
+	return total
 end
 
-local part1 = run()
-print("Part 1", part1)
+print("Part 1", run(25))
+print("Part 2", run(75))
