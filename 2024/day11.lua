@@ -15,8 +15,8 @@ local function readInput()
 end
 
 local function split(num)
-	local first = tonumber(num:sub(1, #num // 2))
-	local second = tonumber(num:sub(#num // 2 + 1, #num))
+	local first = tonumber(num:sub(1, #num / 2))
+	local second = tonumber(num:sub(#num / 2 + 1, #num))
 	return tostring(first), tostring(second)
 end
 
