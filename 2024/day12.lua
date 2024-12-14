@@ -3,9 +3,13 @@ local Set = require("ff.collections.set")
 local Queue = require("ff.collections.queue")
 
 local N = { -1, 0 }
+local NE = { -1, 1 }
 local E = { 0, 1 }
+local SE = { 1, 1 }
 local S = { 1, 0 }
+local SW = { 1, -1 }
 local W = { 0, -1 }
+local NW = { -1, -1 }
 
 local DIRECTIONS = { N, E, S, W }
 
@@ -33,116 +37,127 @@ local function inMap(map, row, col)
 	return true
 end
 
-local function stringfy(row, col)
+local function id(row, col)
 	return string.format("%d:%d", row, col)
 end
 
-local function Node(id, row, col)
-	local n = {
-		id = id,
-		row = row,
-		col = col,
-		edges = {},
-	}
-
-	n.addEdge = function(other)
-		n.edges[other.id] = other
+local function countCorners(map, row, col, neighbors)
+	if #neighbors == 0 then
+		return 4
 	end
 
-	return n
-end
+	if #neighbors == 1 then
+		return 2
+	end
 
-local function determineRegions(map)
-	local mapped = Set.new()
-	local nodes = HashMap.new()
-	local regions = {}
+	local corners = 0
 
-	for row, _ in pairs(map) do
-		for col, plant in pairs(map[row]) do
-			local id = stringfy(row, col)
-			if mapped:contains(id) then
-				goto continue
-			end
+	local nDirections = Set.new()
+	for _, neighbor in pairs(neighbors) do
+		nDirections:add(neighbor[4])
+	end
 
-			local toMap = Queue.new()
-			local root = nodes:compute(id, function()
-				return Node(id, row, col)
-			end)
-			toMap:enqueue(root)
-			while not toMap:empty() do
-				local levelSize = #toMap
-				for _ = 1, levelSize do
-					local cur = toMap:dequeue()
-					if mapped:contains(cur.id) then
-						goto continue
-					end
-
-					mapped:add(cur.id)
-					for _, dir in pairs(DIRECTIONS) do
-						local nRow, nCol = cur.row + dir[1], cur.col + dir[2]
-						if inMap(map, nRow, nCol) and map[nRow][nCol] == plant then
-							local nId = stringfy(nRow, nCol)
-							local nNode = nodes:compute(nId, function()
-								return Node(nId, nRow, nCol)
-							end)
-							cur.addEdge(nNode)
-							if not mapped:contains(nNode.id) then
-								toMap:enqueue(nNode)
-							end
-						end
-					end
-					::continue::
-				end
-			end
-
-			table.insert(regions, root)
-
-			::continue::
+	if #neighbors == 2 then
+		if not (nDirections:contains(N) and nDirections:contains(S)) and not (nDirections:contains(E) and nDirections:contains(W)) then
+			corners = 1
 		end
 	end
 
-	return regions
-end
+	local plant = map[row][col]
 
-local function calculatePrice(regions)
-	local total = 0
-
-	for _, root in pairs(regions) do
-		-- print("region ->", root.id)
-		local edges = 0
-		local vertexes = Set.new()
-		local toVisit = Queue.new()
-		toVisit:enqueue(root)
-		while not toVisit:empty() do
-			local cur = toVisit:dequeue()
-			if vertexes:contains(cur.id) then
-				goto continue
-			end
-			for _, neighbor in pairs(cur.edges) do
-				-- print(cur.id, neighbor.id)
-				edges = edges + 1
-				if not vertexes:contains(neighbor.id) then
-					toVisit:enqueue(neighbor)
-				end
-			end
-			vertexes:add(cur.id)
-			::continue::
+	local oRow, oCol =  row + NE[1], col + NE[2]
+	if inMap(map, oRow, oCol) and map[oRow][oCol] ~= plant then
+		if nDirections:contains(N) and nDirections:contains(E) then
+			corners = corners + 1
 		end
-
-		local area = #vertexes
-		local perimeter = (#vertexes * 4) - edges
-		-- print(root.id, area, perimeter, edges)
-		total = total + (area * perimeter)
 	end
 
-	return total
+	oRow, oCol =  row + NW[1], col + NW[2]
+	if inMap(map, oRow, oCol) and map[oRow][oCol] ~= plant then
+		if nDirections:contains(N) and nDirections:contains(W) then
+			corners = corners + 1
+		end
+	end
+
+	oRow, oCol =  row + SE[1], col + SE[2]
+	if inMap(map, oRow, oCol) and map[oRow][oCol] ~= plant then
+		if nDirections:contains(S) and nDirections:contains(E) then
+			corners = corners + 1
+		end
+	end
+
+	oRow, oCol =  row + SW[1], col + SW[2]
+	if inMap(map, oRow, oCol) and map[oRow][oCol] ~= plant then
+		if nDirections:contains(S) and nDirections:contains(W) then
+			corners = corners + 1
+		end
+	end
+
+	return corners
+end
+
+local function determineRegions(map, row, col)
+	local plant = map[row][col]
+	local area = Set.new()
+	local perimeter = 0
+	local corners = 0
+
+	local toMap = Queue.new()
+	toMap:enqueue({ row, col, id(row, col) })
+
+	while not toMap:empty() do
+		local cur = toMap:dequeue()
+		if not area:add(cur[3]) then
+			goto continue
+		end
+
+		local neighbors = {}
+		for _, dir in pairs(DIRECTIONS) do
+			local nRow, nCol = cur[1] + dir[1], cur[2] + dir[2]
+			if inMap(map, nRow, nCol) and map[nRow][nCol] == plant then
+				local neighbor = { nRow, nCol, id(nRow, nCol), dir }
+				if not area:contains(neighbor[3]) then
+					toMap:enqueue(neighbor)
+				end
+				table.insert(neighbors, neighbor)
+			end
+		end
+
+		perimeter = perimeter + (4 - #neighbors)
+		corners = corners + countCorners(map, cur[1], cur[2], neighbors)
+
+		::continue::
+	end
+
+	return area, perimeter, corners
 end
 
 local function run()
 	local map = readInput()
-	local regions = determineRegions(map)
-	return calculatePrice(regions)
+
+	local total = 0
+	local withDiscount = 0
+	local mapped = Set.new()
+	for row, _ in pairs(map) do
+		for col, _ in pairs(map[row]) do
+			if mapped:contains(id(row, col)) then
+				goto continue
+			end
+			local area, perimeter, corners = determineRegions(map, row, col)
+
+			total = total + (perimeter * #area)
+			withDiscount = withDiscount + (corners * #area)
+
+			for pos, _ in pairs(area._entries) do
+				mapped:add(pos)
+			end
+
+			::continue::
+		end
+	end
+	return total, withDiscount
 end
 
-local part1 = run()
-print("Part 1", part1)
+local part1, part2 = run()
+print("Part 1", part1, part1 == 1573474)
+print("Part 2", part2, part2 == 966476)
