@@ -75,7 +75,6 @@ local function doMove(map, robot, move)
 		while map[afterRow][afterCol] ~= WALL do
 			afterRow, afterCol = nextPos(afterRow, afterCol, dir)
 			if map[afterRow][afterCol] == SPACE then
-				-- print("canmove", afterRow, afterCol)
 				canMove = true
 				break
 			end
@@ -93,7 +92,6 @@ local function doMove(map, robot, move)
 				row, col = nextPos(row, col, dir)
 				local tmp = map[row][col]
 				map[row][col] = next
-				-- print(tmp, next)
 				next = tmp
 			end
 		end
@@ -110,11 +108,7 @@ local function run()
 	local map, movements, robot = readInput()
 
 	for _, move in pairs(movements) do
-		-- print("\n-----------------\n")
-		-- printMap(map)
-		-- print(move)
 		doMove(map, robot, move)
-		-- printMap(map)
 	end
 
 	printMap(map)
