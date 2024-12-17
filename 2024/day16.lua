@@ -1,5 +1,7 @@
 local HashMap = require("ff.collections.hashmap")
 local Heap = require("ff.collections.heap")
+local Queue = require("ff.collections.queue")
+local Set = require("ff.collections.set")
 
 local START = "S"
 local END = "E"
@@ -14,6 +16,8 @@ N.next = { W, E }
 E.next = { N, S }
 S.next = { E, W }
 W.next = { S, N }
+
+local DIR = { N, E, S, W }
 
 local function Cell(row, col)
 	return { row = row, col = col }
@@ -117,10 +121,30 @@ local function run()
 		::continue::
 	end
 
-	return winningScore, 0
+	local tiles = Set.new()
+	local nodes = Queue.new()
+	for _, dir in pairs(DIR) do
+		local key = id(finish.row, finish.col, dir.row, dir.col)
+		local prevNodes = prev:get(key, {})
+		for _, prevNode in pairs(prevNodes) do
+			nodes:enqueue(prevNode)
+		end
+	end
+
+	while not nodes:empty() do
+		local node = nodes:dequeue()
+		tiles:add(id(node.row, node.col))
+
+		local prevNodes = prev:get(node.id, {})
+		for _, prevNode in pairs(prevNodes) do
+			nodes:enqueue(prevNode)
+		end
+	end
+
+	return winningScore, #tiles + 1
 end
 
 local part1, part2 = run()
 
-print("Part 1", part1, part1 == 106512)
-print("Part 2", part2, part2 == 563)
+print("Part 1", part1)
+print("Part 2", part2)
