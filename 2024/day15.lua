@@ -206,12 +206,6 @@ local function widenMap(map)
 	return wide, robot
 end
 
-local function printMap(map)
-	for _, row in pairs(map) do
-		print(table.concat(row))
-	end
-end
-
 local function run()
 	local map, movements, robot = readInput()
 	local wMap, wRobot = widenMap(map)
@@ -225,5 +219,5 @@ local function run()
 end
 
 local part1, part2 = run()
-print("Part 1", part1, part1 == 1552463)
-print("Part 2", part2, part2 == 1554058)
+print("Part 1", part1)
+print("Part 2", part2)
