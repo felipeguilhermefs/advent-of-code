@@ -123,10 +123,22 @@ local function readInput()
 	return ops, a, b, c
 end
 
+local function quine(ops, b, c)
+	local a = 0
+	for i = #ops, 1, -1 do
+		-- every 3 bits is responsible for one of the outputs
+		a = a << 3
+		while table.concat(ops, ",", i) ~= Computer(a, b, c).compute(ops) do
+			a = a + 1
+		end
+	end
+	return a
+end
+
 local function run()
 	local ops, a, b, c = readInput()
 	local computer = Computer(a, b, c)
-	return computer.compute(ops), 0
+	return computer.compute(ops), quine(ops, b, c)
 end
 
 local part1, part2 = run()
