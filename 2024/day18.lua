@@ -60,10 +60,10 @@ local function createMap(size)
 	return map
 end
 
-local function putBlocks(map, blocks, count)
-	for i = 1, count do
+local function putTiles(map, blocks, low, high, tile)
+	for i = low, high do
 		local block = blocks[i]
-		map[block.row][block.col] = BLOCK
+		map[block.row][block.col] = tile
 	end
 end
 
@@ -101,20 +101,41 @@ local function bfs(map, start, finish)
 			::continue::
 		end
 	end
-	return -1
+end
+
+local function lastPossible(map, blocks, start, finish)
+	local low, high = 1025, #blocks
+	local block
+
+	while low < high do
+		local mid = math.floor((high - low) / 2 + 1) + low
+		putTiles(map, blocks, low, mid, BLOCK)
+
+		local isPossible = bfs(map, start, finish)
+
+		putTiles(map, blocks, low, mid, SPACE)
+
+		if isPossible then
+			low = mid + 1
+			block = blocks[mid]
+		else
+			high = mid - 1
+		end
+	end
+	return string.format("%d,%d", block.col - 1, block.row - 1)
 end
 
 local function run(size)
 	local map = createMap(size)
 	local blocks = readInput()
-	putBlocks(map, blocks, 1024)
+	putTiles(map, blocks, 1, 1024, BLOCK)
 
 	local start, finish = Cell(1, 1), Cell(size, size)
 
-	return bfs(map, start, finish), 0
+	return bfs(map, start, finish), lastPossible(map, blocks, start, finish)
 end
 
 local part1, part2 = run(71)
 
-print("Part 1", part1, part1 == 416)
-print("Part 2", part2, part2 == "50,23")
+print("Part 1", part1)
+print("Part 2", part2)
