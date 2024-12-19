@@ -43,14 +43,15 @@ local function run()
 	local patterns, designs = readInput()
 
 	local cache = HashMap.new()
-	local count = 0
+	local count, total = 0, 0
 	for _, design in pairs(designs) do
 		local possible = countPossible(design, patterns, cache)
 		if possible > 0 then
 			count = count + 1
 		end
+		total = total + possible
 	end
-	return count
+	return count, total
 end
 
 local part1, part2 = run()
