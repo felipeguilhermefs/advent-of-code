@@ -9,11 +9,6 @@ local E = { row = 0, col = 1 }
 local S = { row = 1, col = 0 }
 local W = { row = 0, col = -1 }
 
-N.next = { W, E }
-E.next = { N, S }
-S.next = { E, W }
-W.next = { S, N }
-
 local DIR = { W, E, N, S }
 
 local function id(...)
