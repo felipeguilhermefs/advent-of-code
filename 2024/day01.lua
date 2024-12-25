@@ -1,15 +1,15 @@
-local function parseInput()
-	local f = assert(io.open(arg[1], "rb"), "Open File")
+local function parseInput(filepath)
+	local f = assert(io.open(filepath, "rb"), "Open File")
 	local content = f:read("*a")
 	f:close()
 	return content:gmatch("(%d+)   (%d+)")
 end
 
-local function part1()
+local function part1(filepath)
 	local Heap = require("ff.collections.heap")
 
 	local left, right = Heap.new(), Heap.new()
-	for l, r in parseInput() do
+	for l, r in parseInput(filepath) do
 		left:push(l)
 		right:push(r)
 	end
@@ -21,12 +21,12 @@ local function part1()
 	return sum
 end
 
-local function part2()
+local function part2(filepath)
 	local Array = require("ff.collections.array")
 	local HashMap = require("ff.collections.hashmap")
 
 	local left, right = Array.new(), HashMap.new()
-	for l, r in parseInput() do
+	for l, r in parseInput(filepath) do
 		left:insert(l)
 		right:put(r, right:get(r, 0) + 1)
 	end
@@ -38,5 +38,6 @@ local function part2()
 	return sum
 end
 
-print("Part 1", part1())
-print("Part 2", part2())
+return function(filepath)
+	return part1(filepath), part2(filepath)
+end
