@@ -20,7 +20,8 @@ local function result(filepath)
 	return table.unpack(results)
 end
 
-local function runDay(day)
+local function runDay(d)
+	local day = string.format("day%02d", d)
 	local run = require(day)
 
 	local part1, part2 = run(day .. ".txt")
@@ -30,13 +31,13 @@ local function runDay(day)
 	assert(tostring(part1) == result1, "Error part 1, expected %s got %s")
 	assert(tostring(part2) == result2, "Error part 2, expected %s got %s")
 
-	print("Day " .. day .. " OK")
+	print(string.format("Day %02d OK", d))
 end
 
 local function main()
 	local days = readDays()
 	for _, day in pairs(days) do
-		runDay(string.format("day%02d", day))
+		runDay(day)
 	end
 end
 

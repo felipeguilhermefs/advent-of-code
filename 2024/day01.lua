@@ -15,8 +15,8 @@ local function part1(filepath)
 	end
 
 	local sum = 0
-	while not left:empty() do
-		sum = sum + math.abs(left:pop() - right:pop())
+	for _, l in pairs(left) do
+		sum = sum + math.abs(l - right:pop())
 	end
 	return sum
 end

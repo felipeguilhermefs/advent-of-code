@@ -1,6 +1,6 @@
-local function parseReports()
+local function parseReports(filepath)
 	local reports = {}
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local report = {}
 		for level in line:gmatch("%d+") do
 			table.insert(report, level)
@@ -68,7 +68,8 @@ local function part2(reports)
 	return count
 end
 
-local REPORTS = parseReports()
+return function (filepath)
+	local reports = parseReports(filepath)
 
-print("Part 1", part1(REPORTS))
-print("Part 2", part2(REPORTS))
+	return part1(reports), part2(reports)
+end
