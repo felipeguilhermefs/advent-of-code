@@ -18,9 +18,9 @@ local function lan3(connections)
 	local lans = HashMap.new()
 
 	for computer, connected in pairs(connections) do
-		for conn in pairs(connected._entries) do
+		for conn in pairs(connected) do
 			local lan = connected:intersection(connections:get(conn))
-			for comp in pairs(lan._entries) do
+			for comp in pairs(lan) do
 				if not computer:match("^t") and not conn:match("^t") and not comp:match("^t") then
 					goto continue
 				end
@@ -31,10 +31,6 @@ local function lan3(connections)
 				smallLan:add(comp)
 
 				local key = id(smallLan)
-				if lans:contains(key) then
-					goto continue
-				end
-
 				lans:put(key, smallLan)
 
 				::continue::
@@ -47,7 +43,7 @@ end
 
 local function combinations(connections, size)
 	local arr = {}
-	for item in pairs(connections._entries) do
+	for item in pairs(connections) do
 		table.insert(arr, item)
 	end
 	table.sort(arr)
@@ -77,7 +73,7 @@ local function maxLan(connections)
 			for _, combi in combinations(connected, size) do
 				local lan = combi:union(Set.new())
 				lan:add(computer)
-				for other in pairs(combi._entries) do
+				for other in pairs(combi) do
 					lan = lan:intersection(connections:get(other))
 					lan:add(other)
 				end
@@ -92,9 +88,9 @@ local function maxLan(connections)
 	return id(max)
 end
 
-local function run()
+return function(filepath)
 	local connections = HashMap.new()
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local computer1, computer2 = line:match("(%a+)-(%a+)")
 		connections:compute(computer1, newConnections):add(computer2)
 		connections:compute(computer2, newConnections):add(computer1)
@@ -102,7 +98,3 @@ local function run()
 
 	return lan3(connections), maxLan(connections)
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)

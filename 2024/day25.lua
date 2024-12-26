@@ -10,10 +10,10 @@ local function newSchematic()
 	}
 end
 
-local function readInput()
+local function readInput(filepath)
 	local schematics = { [LOCK] = {}, [KEY] = {} }
 	local schematic = newSchematic()
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		if line == "" then
 			table.insert(schematics[schematic.kind], schematic)
 			schematic = newSchematic()
@@ -62,11 +62,7 @@ local function countPairs(keys, locks)
 	return count
 end
 
-local function run()
-	local schematics = readInput()
-	return countPairs(schematics[KEY], schematics[LOCK])
+return function(filepath)
+	local schematics = readInput(filepath)
+	return countPairs(schematics[KEY], schematics[LOCK]), "Feliz Natal!"
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)

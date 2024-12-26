@@ -1,13 +1,10 @@
 local HashMap = require("ff.collections.hashmap")
 
-local X = "x"
-local Y = "y"
-
-local function readInput()
+local function readInput(filepath)
 	local wires = HashMap.new()
 	local conns = HashMap.new()
 
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local wire, val = line:match("(%w+): (%d)")
 		if wire then
 			wires:put(wire, tonumber(val))
@@ -81,11 +78,7 @@ local function eval(wires, conns)
 	return num(allWires)
 end
 
-local function run()
-	local wires, conns = readInput()
+return function(filepath)
+	local wires, conns = readInput(filepath)
 	return eval(wires, conns), 0
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2, part2 == "ggn,grm,jcb,ndw,twr,z10,z32,z39")
