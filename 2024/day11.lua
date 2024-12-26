@@ -1,5 +1,7 @@
+local HashMap = require("ff.collections.hashmap")
+
 local function addCount(counter, key, value)
-	counter[key] = (counter[key] or 0) + value
+	counter:put(key, counter:get(key, 0) + value)
 end
 
 local function readInput(filepath)
@@ -7,7 +9,7 @@ local function readInput(filepath)
 	local content = f:read("*a")
 	f:close()
 
-	local counter = {}
+	local counter = HashMap.new()
 	for num in content:gmatch("%d+") do
 		addCount(counter, num, 1)
 	end
@@ -22,7 +24,7 @@ end
 
 local function run(stones, times)
 	for _ = 1, times do
-		local counter = {}
+		local counter = HashMap.new()
 		for stone, count in pairs(stones) do
 			if stone == "0" then
 				addCount(counter, "1", count)

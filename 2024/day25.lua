@@ -1,3 +1,5 @@
+local Array = require("ff.collections.array")
+
 local MATERIAL = "#"
 
 local KEY = "K"
@@ -6,16 +8,20 @@ local LOCK = "L"
 local function newSchematic()
 	return {
 		kind = nil,
-		values = { 0, 0, 0, 0, 0 },
+		values = Array.new({ 0, 0, 0, 0, 0 }),
 	}
 end
 
 local function readInput(filepath)
-	local schematics = { [LOCK] = {}, [KEY] = {} }
+	local keys, locks = Array.new(), Array.new()
 	local schematic = newSchematic()
 	for line in io.lines(filepath) do
 		if line == "" then
-			table.insert(schematics[schematic.kind], schematic)
+			if schematic.kind == KEY then
+				keys:insert(schematic)
+			else
+				locks:insert(schematic)
+			end
 			schematic = newSchematic()
 		else
 			local hasMaterial = false
@@ -23,7 +29,7 @@ local function readInput(filepath)
 			for tile in line:gmatch(".") do
 				if tile == MATERIAL then
 					hasMaterial = true
-					schematic.values[index] = schematic.values[index] + 1
+					schematic.values:put(schematic.values:get(index) + 1, index)
 				end
 				index = index + 1
 			end
@@ -38,12 +44,12 @@ local function readInput(filepath)
 		end
 	end
 
-	return schematics
+	return keys, locks
 end
 
 local function fit(key, lock)
 	for i = 1, #key.values do
-		if key.values[i] + lock.values[i] > 7 then
+		if key.values:get(i) + lock.values:get(i) > 7 then
 			return false
 		end
 	end
@@ -63,6 +69,6 @@ local function countPairs(keys, locks)
 end
 
 return function(filepath)
-	local schematics = readInput(filepath)
-	return countPairs(schematics[KEY], schematics[LOCK]), "Feliz Natal!"
+	local keys, locks = readInput(filepath)
+	return countPairs(keys, locks), "Feliz Natal!"
 end

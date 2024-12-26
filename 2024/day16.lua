@@ -123,20 +123,14 @@ return function(filepath)
 	local nodes = Queue.new()
 	for _, dir in pairs(DIR) do
 		local key = id(finish.row, finish.col, dir.row, dir.col)
-		local prevNodes = prev:get(key, {})
-		for _, prevNode in pairs(prevNodes) do
-			nodes:enqueue(prevNode)
-		end
+		nodes = nodes .. prev:get(key)
 	end
 
 	local tiles = Set.new()
 	for _, node in pairs(nodes) do
 		tiles:add(id(node.row, node.col))
 
-		local prevNodes = prev:get(node.id, {})
-		for _, prevNode in pairs(prevNodes) do
-			nodes:enqueue(prevNode)
-		end
+		nodes = nodes .. prev:get(node.id)
 	end
 
 	return winningScore, #tiles + 1

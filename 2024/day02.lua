@@ -1,11 +1,13 @@
-local function parseReports(filepath)
-	local reports = {}
+local Array = require("ff.collections.array")
+
+local function readInput(filepath)
+	local reports = Array.new()
 	for line in io.lines(filepath) do
-		local report = {}
+		local report = Array.new()
 		for level in line:gmatch("%d+") do
-			table.insert(report, level)
+			report:insert(level)
 		end
-		table.insert(reports, report)
+		reports:insert(report)
 	end
 	return reports
 end
@@ -69,7 +71,7 @@ local function part2(reports)
 end
 
 return function (filepath)
-	local reports = parseReports(filepath)
+	local reports = readInput(filepath)
 
 	return part1(reports), part2(reports)
 end

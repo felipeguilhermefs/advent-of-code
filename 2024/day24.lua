@@ -1,4 +1,5 @@
 local HashMap = require("ff.collections.hashmap")
+local Heap = require("ff.collections.heap")
 
 local function readInput(filepath)
 	local wires = HashMap.new()
@@ -30,17 +31,17 @@ local function value(wires, allWires, wire)
 end
 
 local function num(wires)
-	local zs = {}
+	local zs = Heap.newMax()
 	for wire in pairs(wires) do
 		if wire:match("^z") then
-			table.insert(zs, wire)
+			zs:push(wire)
 		end
 	end
-	table.sort(zs)
 
 	local number = 0
-	for i = #zs, 1, -1 do
-		number = (number << 1) + wires:get(zs[i])
+	while not zs:empty() do
+		local z = zs:pop()
+		number = (number << 1) + wires:get(z)
 	end
 	return number
 end

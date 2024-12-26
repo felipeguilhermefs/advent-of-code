@@ -1,4 +1,6 @@
+local Array = require("ff.collections.array")
 local HashMap = require("ff.collections.hashmap")
+local sort = require("ff.sort.quicksort")
 
 local function Node(value)
 	return { value = value, children = HashMap.new() }
@@ -12,7 +14,7 @@ local function addNodes(nodes, prev, next)
 end
 
 local function findMiddle(nodes, line)
-	local pages = {}
+	local pages = Array.new()
 
 	local safe = true
 	local curNodes = nodes
@@ -23,16 +25,24 @@ local function findMiddle(nodes, line)
 		else
 			curNodes = node.children
 		end
-		table.insert(pages, nodes:get(value))
+		pages:insert(nodes:get(value))
 	end
 
 	if not safe then
-		table.sort(pages, function(a, b)
-			return a.children:contains(b.value)
+		sort(pages, function(a, b)
+			if a.children:contains(b.value) then
+				return 1
+			end
+
+			if b.children:contains(a.value) then
+				return -1
+			end
+
+			return 0
 		end)
 	end
 
-	return pages[math.floor(#pages / 2) + 1].value, safe
+	return pages:get(math.floor(#pages / 2) + 1).value, safe
 end
 
 return function(filepath)

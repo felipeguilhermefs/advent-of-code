@@ -1,3 +1,5 @@
+local Set = require("ff.collections.set")
+
 local N = { -1, 0 }
 local E = { 0, 1 }
 local S = { 1, 0 }
@@ -72,11 +74,11 @@ local function markPath(map, guard)
 end
 
 local function isLoop(map, guard)
-	local path = {}
+	local path = Set.new()
 	local row, col, dir = guard.row, guard.col, guard.dir
 	while inMap(map, row, col) do
 		local key = string.format("%d:%d:%d:%d", row, col, dir[1], dir[2])
-		if path[key] then
+		if path:contains(key) then
 			return true
 		end
 
@@ -85,7 +87,7 @@ local function isLoop(map, guard)
 		if inMap(map, nextRow, nextCol) and map[nextRow][nextCol] == BLOCK then
 			dir = dir.next
 		else
-			path[key] = true
+			path:add(key)
 			row = row + dir[1]
 			col = col + dir[2]
 		end
@@ -120,6 +122,9 @@ local function countLoops(map, guard)
 end
 
 return function (filepath)
+	local a = Set.new()
+	a:add("1:2:3:4")
+	print(a:contains("1:2:3:4"))
 	local map, guard = readInput(filepath)
 	local distance = markPath(map, guard)
 

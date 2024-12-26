@@ -1,5 +1,7 @@
+local Array = require("ff.collections.array")
 local HashMap = require("ff.collections.hashmap")
 local Set = require("ff.collections.set")
+local sort = require("ff.sort.quicksort")
 
 local function newConnections()
 	return Set.new()
@@ -7,7 +9,7 @@ end
 
 local function id(set)
 	local arr = {}
-	for item in pairs(set._entries) do
+	for item in pairs(set) do
 		table.insert(arr, item)
 	end
 	table.sort(arr)
@@ -25,10 +27,7 @@ local function lan3(connections)
 					goto continue
 				end
 
-				local smallLan = Set.new()
-				smallLan:add(computer)
-				smallLan:add(conn)
-				smallLan:add(comp)
+				local smallLan = Set.new({ computer, conn, comp })
 
 				local key = id(smallLan)
 				lans:put(key, smallLan)
@@ -42,23 +41,23 @@ local function lan3(connections)
 end
 
 local function combinations(connections, size)
-	local arr = {}
+	local arr = Array.new()
 	for item in pairs(connections) do
-		table.insert(arr, item)
+		arr:insert(item)
 	end
-	table.sort(arr)
+	sort(arr)
 
-	local res = {}
+	local res = Array.new()
 	for i = size, #arr do
 		local base = Set.new()
 		for k = i - size + 1, i - 1 do
-			base:add(arr[k])
+			base:add(arr:get(k))
 		end
 
 		for j = i, #arr do
-			local combi = base:union(Set.new())
-			combi:add(arr[j])
-			table.insert(res, combi)
+			local combi = Set.new(base)
+			combi:add(arr:get(j))
+			res:insert(combi)
 		end
 	end
 	return pairs(res)
@@ -71,7 +70,7 @@ local function maxLan(connections)
 		local size = #connected
 		while size > maxCount - 1 do
 			for _, combi in combinations(connected, size) do
-				local lan = combi:union(Set.new())
+				local lan = Set.new(combi)
 				lan:add(computer)
 				for other in pairs(combi) do
 					lan = lan:intersection(connections:get(other))

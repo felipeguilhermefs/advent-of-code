@@ -52,7 +52,7 @@ end
 
 local function isOuterCorner(map, row, col, dir, neighborsDir)
 	local plant = map[row][col]
-	local oRow, oCol =  row + dir[1], col + dir[2]
+	local oRow, oCol = row + dir[1], col + dir[2]
 
 	if inMap(map, oRow, oCol) and map[oRow][oCol] ~= plant then
 		return neighborsDir:contains(dir.outer[1], dir.outer[2])
@@ -140,9 +140,7 @@ return function(filepath)
 			withDiscount = withDiscount + (corners * #area)
 
 			-- Add everything from area into mapped, so we skip them
-			for pos in pairs(area) do
-				mapped:add(pos)
-			end
+			mapped = mapped .. area
 
 			::continue::
 		end

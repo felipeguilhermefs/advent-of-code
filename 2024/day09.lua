@@ -1,3 +1,5 @@
+local Array = require("ff.collections.array")
+
 local EMPTY = -1
 
 local function readInput(filepath)
@@ -8,9 +10,9 @@ local function readInput(filepath)
 end
 
 local function unzipIndexed(filemap)
-	local disk = {}
-	local indexFree = {}
-	local indexFiles = {}
+	local disk = Array.new()
+	local indexFree = Array.new()
+	local indexFiles = Array.new()
 	local isFree = false
 	local sid = 0
 
@@ -19,17 +21,17 @@ local function unzipIndexed(filemap)
 
 		for _ = 1, digit do
 			if isFree then
-				table.insert(disk, EMPTY)
+				disk:insert(EMPTY)
 			else
-				table.insert(disk, sid)
+				disk:insert(sid)
 			end
 		end
 
 		-- Keep index and size of each space.
 		if isFree then
-			table.insert(indexFree, { index = #disk + 1 - digit, size = digit, sid = EMPTY })
+			indexFree:insert({ index = #disk + 1 - digit, size = digit, sid = EMPTY })
 		else
-			table.insert(indexFiles, { index = #disk + 1 - digit, size = digit, sid = sid })
+			indexFiles:insert({ index = #disk + 1 - digit, size = digit, sid = sid })
 			sid = sid + 1
 		end
 
@@ -43,19 +45,17 @@ local function defrag(disk)
 	local low, high = 1, #disk
 	while low < high do
 		-- Low looks for empty spaces
-		while disk[low] ~= EMPTY and low < high do
+		while disk:get(low) ~= EMPTY and low < high do
 			low = low + 1
 		end
 		-- High looks for non empty spaces
-		while disk[high] == EMPTY and high > low do
+		while disk:get(high) == EMPTY and high > low do
 			high = high - 1
 		end
 
 		-- move non empty space to empty space
 		if low < high then
-			local tmp = disk[low]
-			disk[low] = disk[high]
-			disk[high] = tmp
+			disk:swap(low, high)
 		end
 	end
 end
@@ -63,11 +63,11 @@ end
 local function defragIndexFiles(indexFiles, indexFree)
 	-- Look from last file to first
 	for i = #indexFiles, 1, -1 do
-		local file = indexFiles[i]
+		local file = indexFiles:get(i)
 
 		-- Look at every empty space
 		for j = 1, #indexFree do
-			local free = indexFree[j]
+			local free = indexFree:get(j)
 
 			-- We only care about free space before the file
 			if free.index >= file.index then

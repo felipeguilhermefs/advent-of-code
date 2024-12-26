@@ -1,3 +1,5 @@
+local Array = require("ff.collections.array")
+local HashMap = require("ff.collections.hashmap")
 local Set = require("ff.collections.set")
 
 local function readInput(filepath)
@@ -29,18 +31,18 @@ local function mirror(a, b)
 end
 
 local function groupAntennas(map)
-	local antennas = {}
+	local antennas = HashMap.new()
 	for row, _ in pairs(map) do
 		for col, pos in pairs(map[row]) do
 			if not pos:match("%w") then
 				goto continue
 			end
 
-			if antennas[pos] == nil then
-				antennas[pos] = {}
-			end
-
-			table.insert(antennas[pos], { row, col })
+			antennas
+				:compute(pos, function()
+					return Array.new()
+				end)
+				:insert({ row, col })
 
 			::continue::
 		end
@@ -61,16 +63,16 @@ local function add(antinodes, toAdd)
 end
 
 local function genAntinodes(map, a, b, frequency)
-	local antinodes = {}
+	local antinodes = Array.new()
 
 	local antinodeA = newAntinode(a, b)
 	if inMap(map, antinodeA) and map[antinodeA[1]][antinodeA[2]] ~= frequency then
-		table.insert(antinodes, antinodeA)
+		antinodes:insert(antinodeA)
 	end
 
 	local antinodeB = newAntinode(b, a)
 	if inMap(map, antinodeB) and map[antinodeB[1]][antinodeB[2]] ~= frequency then
-		table.insert(antinodes, antinodeB)
+		antinodes:insert(antinodeB)
 	end
 
 	return antinodes
@@ -79,7 +81,7 @@ end
 local function resonate(map, antinodes, a, b)
 	local antinode = newAntinode(a, b)
 	while inMap(map, antinode) do
-		table.insert(antinodes, antinode)
+		antinodes:insert(antinode)
 
 		b = a
 		a = antinode
@@ -89,9 +91,7 @@ local function resonate(map, antinodes, a, b)
 end
 
 local function genAntinodesWithResonance(map, a, b)
-	local antinodes = {}
-	table.insert(antinodes, a)
-	table.insert(antinodes, b)
+	local antinodes = Array.new({ a, b })
 
 	resonate(map, antinodes, a, b)
 	resonate(map, antinodes, b, a)
@@ -108,8 +108,8 @@ return function(filepath)
 	for frequency, antennas in pairs(frequencies) do
 		for i = 1, #antennas do
 			for j = i + 1, #antennas do
-				local a = antennas[i]
-				local b = antennas[j]
+				local a = antennas:get(i)
+				local b = antennas:get(j)
 
 				add(antinodes, genAntinodes(map, a, b, frequency))
 				add(antinodesWithResonance, genAntinodesWithResonance(map, a, b))

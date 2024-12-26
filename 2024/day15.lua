@@ -209,7 +209,7 @@ return function(filepath)
 	local map, movements, robot = readInput(filepath)
 	local wMap, wRobot = widenMap(map)
 
-	for i, move in pairs(movements) do
+	for _, move in pairs(movements) do
 		doMove(map, robot, move)
 		doMove(wMap, wRobot, move)
 	end

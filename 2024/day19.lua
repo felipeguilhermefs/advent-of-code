@@ -1,17 +1,20 @@
+local Array = require("ff.collections.array")
 local HashMap = require("ff.collections.hashmap")
 
 local function readInput(filepath)
-	local patterns, designs = HashMap.new(), {}
+	local patterns, designs = HashMap.new(), Array.new()
 	for line in io.lines(filepath) do
 		if #patterns == 0 then
 			for pattern in line:gmatch("%a+") do
 				local prefix = pattern:sub(1, 1)
-				local suffixes = patterns:get(prefix, {})
-				table.insert(suffixes, pattern)
-				patterns:put(prefix, suffixes)
+				patterns
+					:compute(prefix, function()
+						return Array.new()
+					end)
+					:insert(pattern)
 			end
 		elseif line ~= "" then
-			table.insert(designs, line)
+			designs:insert(line)
 		end
 	end
 

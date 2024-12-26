@@ -1,3 +1,4 @@
+local Array = require("ff.collections.array")
 local Set = require("ff.collections.set")
 
 local HEIGHT = 103
@@ -7,13 +8,13 @@ local HALF_H = math.floor(HEIGHT / 2)
 local HALF_W = math.floor(WIDTH / 2)
 
 local function readInput(filepath)
-	local robots = {}
+	local robots = Array.new()
 	for line in io.lines(filepath) do
 		local robot = {}
 		for num in line:gmatch("-?%d+") do
 			table.insert(robot, tonumber(num))
 		end
-		table.insert(robots, robot)
+		robots:insert(robot)
 	end
 	return robots
 end
@@ -52,10 +53,10 @@ local function untilXmasTree(robots)
 
 	while true do
 		local visited = Set.new()
-		for i, robot in ipairs(robots) do
-			robots[i][1] = move(robot[1], robot[3], WIDTH)
-			robots[i][2] = move(robot[2], robot[4], HEIGHT)
-			visited:add(string.format("%d:%d", robots[i][1], robots[i][2]))
+		for _, robot in pairs(robots) do
+			robot[1] = move(robot[1], robot[3], WIDTH)
+			robot[2] = move(robot[2], robot[4], HEIGHT)
+			visited:add(string.format("%d:%d", robot[1], robot[2]))
 		end
 
 		if #visited == #robots then
