@@ -2,8 +2,8 @@ local function addCount(counter, key, value)
 	counter[key] = (counter[key] or 0) + value
 end
 
-local function readInput()
-	local f = assert(io.open(arg[1], "rb"))
+local function readInput(filepath)
+	local f = assert(io.open(filepath, "rb"))
 	local content = f:read("*a")
 	f:close()
 
@@ -20,9 +20,7 @@ local function split(num)
 	return tostring(first), tostring(second)
 end
 
-local function run(times)
-	local stones = readInput()
-
+local function run(stones, times)
 	for _ = 1, times do
 		local counter = {}
 		for stone, count in pairs(stones) do
@@ -47,5 +45,7 @@ local function run(times)
 	return total
 end
 
-print("Part 1", run(25))
-print("Part 2", run(75))
+return function(filepath)
+	local stones = readInput(filepath)
+	return run(stones, 25), run(stones, 75)
+end

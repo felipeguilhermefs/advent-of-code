@@ -6,9 +6,9 @@ local WIDTH = 101
 local HALF_H = math.floor(HEIGHT / 2)
 local HALF_W = math.floor(WIDTH / 2)
 
-local function readInput()
+local function readInput(filepath)
 	local robots = {}
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local robot = {}
 		for num in line:gmatch("-?%d+") do
 			table.insert(robot, tonumber(num))
@@ -66,12 +66,8 @@ local function untilXmasTree(robots)
 	end
 end
 
-local function run()
-	local robots = readInput()
+return function(filepath)
+	local robots = readInput(filepath)
 
 	return calculateSafety(robots), untilXmasTree(robots)
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)

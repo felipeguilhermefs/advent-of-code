@@ -1,7 +1,7 @@
-local function readInput()
+local function readInput(filepath)
 	local machines = {}
 	local machine = {}
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		if line:match("Button") then
 			local x, y = line:match("X%+(%d+), Y%+(%d+)")
 			table.insert(machine, { tonumber(x), tonumber(y) })
@@ -46,11 +46,7 @@ local function countToken(machines, convert)
 	return tokens
 end
 
-local function run()
-	local machines = readInput()
+return function(filepath)
+	local machines = readInput(filepath)
 	return countToken(machines), countToken(machines, true)
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)

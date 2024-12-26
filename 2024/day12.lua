@@ -18,9 +18,9 @@ SW.outer = { S, W }
 local DIRECTIONS = { N, E, S, W }
 local OUTER_DIRECTIONS = {NE, NW, SE, SW}
 
-local function readInput()
+local function readInput(filepath)
 	local map = {}
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local row = {}
 		for tile in line:gmatch(".") do
 			table.insert(row, tile)
@@ -55,7 +55,7 @@ local function isOuterCorner(map, row, col, dir, neighborsDir)
 	local oRow, oCol =  row + dir[1], col + dir[2]
 
 	if inMap(map, oRow, oCol) and map[oRow][oCol] ~= plant then
-		return neighborsDir:contains(dir.outer[1]) and neighborsDir:contains(dir.outer[2])
+		return neighborsDir:contains(dir.outer[1], dir.outer[2])
 	end
 	return false
 
@@ -73,7 +73,7 @@ local function countCorners(map, row, col, neighborsDir)
 	local corners = 0
 
 	if #neighborsDir == 2 then
-		if not (neighborsDir:contains(N) and neighborsDir:contains(S)) and not (neighborsDir:contains(E) and neighborsDir:contains(W)) then
+		if not neighborsDir:contains(N, S) and not neighborsDir:contains(E, W) then
 			-- perpendicular
 			corners = 1
 		end
@@ -97,8 +97,7 @@ local function determineRegions(map, row, col)
 	local toMap = Queue.new()
 	toMap:enqueue(Node(row, col))
 
-	while not toMap:empty() do
-		local cur = toMap:dequeue()
+	for _, cur in pairs(toMap) do
 		if not area:add(cur.id) then
 			goto continue
 		end
@@ -124,8 +123,8 @@ local function determineRegions(map, row, col)
 	return area, perimeter, corners
 end
 
-local function run()
-	local map = readInput()
+return function(filepath)
+	local map = readInput(filepath)
 
 	local total = 0
 	local withDiscount = 0
@@ -141,7 +140,7 @@ local function run()
 			withDiscount = withDiscount + (corners * #area)
 
 			-- Add everything from area into mapped, so we skip them
-			for pos, _ in pairs(area._entries) do
+			for pos in pairs(area) do
 				mapped:add(pos)
 			end
 
@@ -150,7 +149,3 @@ local function run()
 	end
 	return total, withDiscount
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)
