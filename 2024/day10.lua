@@ -7,9 +7,9 @@ local W = { 0, -1 }
 
 local DIRECTIONS = { N, E, S, W }
 
-local function readInput()
+local function readInput(filepath)
 	local map = {}
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local row = {}
 		for height in line:gmatch("%d") do
 			row[#row + 1] = tonumber(height)
@@ -57,8 +57,8 @@ local function walkTrails(map, row, col, height, peaks)
 	return peaks, trails
 end
 
-local function run()
-	local map = readInput()
+return function(filepath)
+	local map = readInput(filepath)
 	local score = 0
 	local trails = 0
 
@@ -74,7 +74,3 @@ local function run()
 
 	return score, trails
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)

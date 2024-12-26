@@ -1,8 +1,8 @@
 local Set = require("ff.collections.set")
 
-local function readInput()
+local function readInput(filepath)
 	local map = {}
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local row = {}
 		for tile in line:gmatch(".") do
 			table.insert(row, tile)
@@ -84,7 +84,7 @@ local function resonate(map, antinodes, a, b)
 		b = a
 		a = antinode
 
-		ntinode = newAntinode(a, b)
+		antinode = newAntinode(a, b)
 	end
 end
 
@@ -99,8 +99,8 @@ local function genAntinodesWithResonance(map, a, b)
 	return antinodes
 end
 
-local function run()
-	local map = readInput()
+return function(filepath)
+	local map = readInput(filepath)
 	local frequencies = groupAntennas(map)
 
 	local antinodes = Set.new()
@@ -119,7 +119,3 @@ local function run()
 
 	return #antinodes, #antinodesWithResonance
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)

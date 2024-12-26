@@ -1,7 +1,7 @@
 local EMPTY = -1
 
-local function readInput()
-	local f = assert(io.open(arg[1], "rb"))
+local function readInput(filepath)
+	local f = assert(io.open(filepath, "rb"))
 	local content = f:read("*a")
 	f:close()
 	return content
@@ -112,8 +112,8 @@ local function checksumIndex(indexFiles)
 	return sum
 end
 
-local function run()
-	local filemap = readInput()
+return function(filepath)
+	local filemap = readInput(filepath)
 	local disk, indexFiles, indexFree = unzipIndexed(filemap)
 
 	defrag(disk)
@@ -122,7 +122,3 @@ local function run()
 
 	return checksum(disk), checksumIndex(indexFiles)
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)
