@@ -44,11 +44,11 @@ local function putTile(map, cell, tile)
 	map[cell.row][cell.col] = tile
 end
 
-local function readInput()
+local function readInput(filepath)
 	local map = {}
 	local movements = {}
 	local robot
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		if line:match(WALL) then
 			local row = {}
 			for tile in line:gmatch(".") do
@@ -133,8 +133,7 @@ local function doMove(map, robot, move)
 		local toMove = HashMap.new()
 		toMove:put(nextCell.id, { nextCell, map[nextCell.row][nextCell.col] })
 
-		while not q:empty() do
-			local cur = q:dequeue()
+		for _, cur in pairs(q) do
 			local afterCell = moveCell(cur, dir)
 
 			if getTile(map, afterCell) == WALL then
@@ -206,8 +205,8 @@ local function widenMap(map)
 	return wide, robot
 end
 
-local function run()
-	local map, movements, robot = readInput()
+return function(filepath)
+	local map, movements, robot = readInput(filepath)
 	local wMap, wRobot = widenMap(map)
 
 	for i, move in pairs(movements) do
@@ -217,7 +216,3 @@ local function run()
 
 	return sumGPS(map), sumGPS(wMap)
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)
