@@ -33,10 +33,10 @@ function Position.__tostring(this)
 	return this.id
 end
 
-local function readInput()
+local function readInput(filepath)
 	local map, start, finish = {}, nil, nil
 
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local row = {}
 		for tile in line:gmatch(".") do
 			table.insert(row, tile)
@@ -106,13 +106,8 @@ local function countCheat(timeAtPosition, positionAtTime, finish, cheat)
 	return count
 end
 
-local function run()
-	local map, start, finish = readInput()
+return function(filepath)
+	local map, start, finish = readInput(filepath)
 	local timeAtPosition, positionAtTime = normalLap(map, start, finish)
 	return countCheat(timeAtPosition, positionAtTime, finish, 2), countCheat(timeAtPosition, positionAtTime, finish, 20)
 end
-
-local part1, part2 = run()
-
-print("Part 1", part1)
-print("Part 2", part2)

@@ -46,10 +46,10 @@ local function merge(to, from)
 	end
 end
 
-local function run()
+return function(filepath)
 	local sumPrices = 0
 	local sequences = HashMap.new()
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local seed = tonumber(line)
 		local secret, prices = nextSecret(seed, 2000)
 
@@ -60,7 +60,3 @@ local function run()
 
 	return sumPrices, max(sequences)
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)

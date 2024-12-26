@@ -18,9 +18,9 @@ local DOWN = "v"
 local LEFT = "<"
 local RIGHT = ">"
 
-local function readInput()
+local function readInput(filepath)
 	local codes = {}
-	for code in io.lines(arg[1]) do
+	for code in io.lines(filepath) do
 		table.insert(codes, {
 			code = code,
 			score = tonumber(code:match("%d+")),
@@ -106,8 +106,7 @@ local function bfs(from, to, pad)
 	local shortest
 	local allMoves = {}
 
-	while not toVisit:empty() do
-		local cur = toVisit:dequeue()
+	for _, cur in pairs(toVisit) do
 		local digit = cur[1]
 		local moves = cur[2]
 		if digit == to then
@@ -138,7 +137,6 @@ end
 
 local function countMoves(code, nRobots, cache, pad)
 	pad = pad or NUMPAD
-	-- return cache:compute(code, function()
 	return cache:compute(id(code, nRobots), function()
 		code = "A" .. code
 		local count = 0
@@ -171,9 +169,7 @@ local function run(codes, nRobots)
 	return sum
 end
 
-local codes = readInput()
-local part1 = run(codes, 2)
-local part2 = run(codes, 25)
-
-print("Part 1", part1, part1 == 163086)
-print("Part 2", part2, part2 == 198466286401228)
+return function(filepath)
+	local codes = readInput(filepath)
+	return run(codes, 2), run(codes, 25)
+end
