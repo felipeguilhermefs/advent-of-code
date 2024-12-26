@@ -27,10 +27,10 @@ local function id(...)
 	return table.concat({ ... }, ":")
 end
 
-local function readInput()
+local function readInput(filepath)
 	local map, start, finish = {}, nil, nil
 
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local row = {}
 		for tile in line:gmatch(".") do
 			table.insert(row, tile)
@@ -72,8 +72,8 @@ local function minScore(a, b)
 	return 0
 end
 
-local function run()
-	local map, start, finish = readInput()
+return function(filepath)
+	local map, start, finish = readInput(filepath)
 
 	local initialState = Node(start.row, start.col, E, 0)
 	local pq = Heap.new(minScore)
@@ -85,15 +85,14 @@ local function run()
 
 	local winningScore = nil
 
-	while not pq:empty() do
-		local cur = pq:pop()
+	for _, cur in pairs(pq) do
 		if winningScore and cur.score > winningScore then
 			break
 		end
 
 		if visited:contains(cur.id) then
 			if cur.score == visited:get(cur.id) then
-				local prevNodes = prev:get(cur.id, {})
+				local prevNodes = prev:get(cur.id)
 				table.insert(prevNodes, cur.prev)
 			end
 			goto continue
@@ -121,7 +120,6 @@ local function run()
 		::continue::
 	end
 
-	local tiles = Set.new()
 	local nodes = Queue.new()
 	for _, dir in pairs(DIR) do
 		local key = id(finish.row, finish.col, dir.row, dir.col)
@@ -131,8 +129,8 @@ local function run()
 		end
 	end
 
-	while not nodes:empty() do
-		local node = nodes:dequeue()
+	local tiles = Set.new()
+	for _, node in pairs(nodes) do
 		tiles:add(id(node.row, node.col))
 
 		local prevNodes = prev:get(node.id, {})
@@ -143,8 +141,3 @@ local function run()
 
 	return winningScore, #tiles + 1
 end
-
-local part1, part2 = run()
-
-print("Part 1", part1)
-print("Part 2", part2)
