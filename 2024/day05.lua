@@ -35,10 +35,10 @@ local function findMiddle(nodes, line)
 	return pages[math.floor(#pages / 2) + 1].value, safe
 end
 
-local function run()
+return function(filepath)
 	local safeSum, unsafeSum = 0, 0
 	local nodes = HashMap.new()
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local prev, next = line:match("(%d+)|(%d+)")
 		if prev then
 			addNodes(nodes, prev, next)
@@ -54,7 +54,3 @@ local function run()
 
 	return safeSum, unsafeSum
 end
-
-local safeSum, unsafeSum = run()
-print("Part 1", safeSum)
-print("Part 2", unsafeSum)

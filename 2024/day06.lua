@@ -18,10 +18,10 @@ local DIR = {
 local BLOCK = "#"
 local VISITED = "X"
 
-local function readInput()
+local function readInput(filepath)
 	local map = {}
 	local guard
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local row = {}
 		for pos in line:gmatch(".") do
 			if guard == nil then
@@ -119,13 +119,9 @@ local function countLoops(map, guard)
 	return count
 end
 
-local function run()
-	local map, guard = readInput()
+return function (filepath)
+	local map, guard = readInput(filepath)
 	local distance = markPath(map, guard)
 
 	return distance, countLoops(map, guard)
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)

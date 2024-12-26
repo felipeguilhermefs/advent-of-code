@@ -8,9 +8,9 @@ local function concat(a, b)
 	return tonumber(a .. b)
 end
 
-local function readInput()
+local function readInput(filepath)
 	local records = {}
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		local values = {}
 		for value in line:gmatch("(%d+)") do
 			table.insert(values, tonumber(value))
@@ -47,7 +47,8 @@ local function run(records, ops)
 	return string.format("%0.f", sum)
 end
 
-local RECORDS = readInput()
+return function(filepath)
+	local records = readInput(filepath)
 
-print("Part1", run(RECORDS, { add, mul }))
-print("Part2", run(RECORDS, { add, mul, concat }))
+	return run(records, { add, mul }), run(records, { add, mul, concat })
+end
