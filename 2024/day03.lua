@@ -1,8 +1,11 @@
-local f = assert(io.open(arg[1], "rb"))
-local memorymap = f:read("*a")
-f:close()
+local function readInput(filepath)
+	local f = assert(io.open(filepath, "rb"))
+	local memorymap = f:read("*a")
+	f:close()
+	return memorymap
+end
 
-local function part1()
+local function part1(memorymap)
 	local res = 0
 	for base, multiplier in memorymap:gmatch("mul%((%d+),(%d+)%)") do
 		res = res + base * multiplier
@@ -10,7 +13,7 @@ local function part1()
 	return res
 end
 
-local function part2()
+local function part2(memorymap)
 	local res = 0
 	local open = true
 	for stm, base, multiplier in memorymap:gmatch("([don'tmul]+)%((%d*),*(%d*)%)") do
@@ -25,5 +28,7 @@ local function part2()
 	return res
 end
 
-print("Part 1", part1())
-print("Part 2", part2())
+return function(filepath)
+	local memorymap = readInput(filepath)
+	return part1(memorymap), part2(memorymap)
+end
