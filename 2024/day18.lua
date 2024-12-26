@@ -24,8 +24,8 @@ local function Cell(row, col)
 	return { id = id(row, col), row = row, col = col }
 end
 
-local function readInput()
-	local f = assert(io.open(arg[1], "rb"))
+local function readInput(filepath)
+	local f = assert(io.open(filepath, "rb"))
 	local content = f:read("*a")
 	f:close()
 
@@ -73,9 +73,7 @@ local function bfs(map, start, finish)
 	local distances = HashMap.new()
 	distances:put(start.id, 0)
 
-	while not toVisit:empty() do
-		local cur = toVisit:dequeue()
-
+	for _, cur in pairs(toVisit) do
 		for _, dir in pairs(DIR) do
 			local nextCell = Cell(cur.row + dir.row, cur.col + dir.col)
 			if not inMap(map, nextCell.row, nextCell.col) then
@@ -125,17 +123,13 @@ local function lastPossible(map, blocks, start, finish)
 	return string.format("%d,%d", block.col - 1, block.row - 1)
 end
 
-local function run(size)
+return function(filepath)
+	local size = 71
 	local map = createMap(size)
-	local blocks = readInput()
+	local blocks = readInput(filepath)
 	putTiles(map, blocks, 1, 1024, BLOCK)
 
 	local start, finish = Cell(1, 1), Cell(size, size)
 
 	return bfs(map, start, finish), lastPossible(map, blocks, start, finish)
 end
-
-local part1, part2 = run(71)
-
-print("Part 1", part1)
-print("Part 2", part2)

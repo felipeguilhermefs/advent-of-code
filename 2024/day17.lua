@@ -104,10 +104,10 @@ local function Computer(a, b, c)
 	return cpt
 end
 
-local function readInput()
+local function readInput(filepath)
 	local ops = {}
 	local a, b, c
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		if line:match("A:") then
 			a = tonumber(line:match("%d+"))
 		elseif line:match("B:") then
@@ -135,12 +135,8 @@ local function quine(ops, b, c)
 	return a
 end
 
-local function run()
-	local ops, a, b, c = readInput()
+return function(filepath)
+	local ops, a, b, c = readInput(filepath)
 	local computer = Computer(a, b, c)
 	return computer.compute(ops), quine(ops, b, c)
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)

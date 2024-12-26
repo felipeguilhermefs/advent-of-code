@@ -1,8 +1,8 @@
 local HashMap = require("ff.collections.hashmap")
 
-local function readInput()
+local function readInput(filepath)
 	local patterns, designs = HashMap.new(), {}
-	for line in io.lines(arg[1]) do
+	for line in io.lines(filepath) do
 		if #patterns == 0 then
 			for pattern in line:gmatch("%a+") do
 				local prefix = pattern:sub(1, 1)
@@ -39,8 +39,8 @@ local function countPossible(design, patterns, cache)
 	end)
 end
 
-local function run()
-	local patterns, designs = readInput()
+return function(filepath)
+	local patterns, designs = readInput(filepath)
 
 	local cache = HashMap.new()
 	local count, total = 0, 0
@@ -53,7 +53,3 @@ local function run()
 	end
 	return count, total
 end
-
-local part1, part2 = run()
-print("Part 1", part1)
-print("Part 2", part2)
