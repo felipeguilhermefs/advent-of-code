@@ -133,7 +133,8 @@ local function doMove(map, robot, move)
 		local toMove = HashMap.new()
 		toMove:put(nextCell.id, { nextCell, map[nextCell.row][nextCell.col] })
 
-		for _, cur in pairs(q) do
+		while not q:empty() do
+			local cur = q:dequeue()
 			local afterCell = moveCell(cur, dir)
 
 			if getTile(map, afterCell) == WALL then

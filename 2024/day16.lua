@@ -85,7 +85,8 @@ return function(filepath)
 
 	local winningScore = nil
 
-	for _, cur in pairs(pq) do
+	while not pq:empty() do
+		local cur = pq:pop()
 		if winningScore and cur.score > winningScore then
 			break
 		end

@@ -97,7 +97,8 @@ local function determineRegions(map, row, col)
 	local toMap = Queue.new()
 	toMap:enqueue(Node(row, col))
 
-	for _, cur in pairs(toMap) do
+	while not toMap:empty() do
+		local cur = toMap:dequeue()
 		if not area:add(cur.id) then
 			goto continue
 		end

@@ -106,7 +106,8 @@ local function bfs(from, to, pad)
 	local shortest
 	local allMoves = {}
 
-	for _, cur in pairs(toVisit) do
+	while not toVisit:empty() do
+		local cur = toVisit:dequeue()
 		local digit = cur[1]
 		local moves = cur[2]
 		if digit == to then

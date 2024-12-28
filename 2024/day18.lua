@@ -73,7 +73,8 @@ local function bfs(map, start, finish)
 	local distances = HashMap.new()
 	distances:put(start.id, 0)
 
-	for _, cur in pairs(toVisit) do
+	while not toVisit:empty() do
+		local cur = toVisit:dequeue()
 		for _, dir in pairs(DIR) do
 			local nextCell = Cell(cur.row + dir.row, cur.col + dir.col)
 			if not inMap(map, nextCell.row, nextCell.col) then
