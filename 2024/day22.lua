@@ -41,11 +41,8 @@ local function max(sequences)
 	return maximum
 end
 
-local function merge(to, from)
-	for k, v in pairs(from) do
-		local value = to:get(k, 0)
-		to:put(k, v + value)
-	end
+local function add(a, b)
+	return a + b
 end
 
 return function(filepath)
@@ -57,7 +54,7 @@ return function(filepath)
 
 		sumPrices = sumPrices + secret
 
-		merge(sequences, generateSequences(prices))
+		sequences:merge(generateSequences(prices), add)
 	end
 
 	return sumPrices, max(sequences)
