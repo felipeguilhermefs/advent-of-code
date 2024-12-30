@@ -1,5 +1,6 @@
 local HashMap = require("ff.collections.hashmap")
 local Queue = require("ff.collections.queue")
+local Matrix = require("matrix")
 
 local SPACE = "."
 local BLOCK = "#"
@@ -36,18 +37,6 @@ local function readInput(filepath)
 	return blocks
 end
 
-local function inMap(map, row, col)
-	if row < 1 or row > #map then
-		return false
-	end
-
-	if col < 1 or col > #map[row] then
-		return false
-	end
-
-	return true
-end
-
 local function createMap(size)
 	local map = {}
 	for _ = 1, size do
@@ -77,7 +66,7 @@ local function bfs(map, start, finish)
 		local cur = toVisit:dequeue()
 		for _, dir in pairs(DIR) do
 			local nextCell = Cell(cur.row + dir.row, cur.col + dir.col)
-			if not inMap(map, nextCell.row, nextCell.col) then
+			if not Matrix.contains(map, nextCell.row, nextCell.col) then
 				goto continue
 			end
 

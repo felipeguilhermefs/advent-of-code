@@ -1,6 +1,7 @@
 local Array = require("ff.collections.array")
 local HashMap = require("ff.collections.hashmap")
 local Set = require("ff.collections.set")
+local Matrix = require("matrix")
 
 local function readInput(filepath)
 	local map = {}
@@ -12,18 +13,6 @@ local function readInput(filepath)
 		table.insert(map, row)
 	end
 	return map
-end
-
-local function inMap(map, antinode)
-	if antinode[1] < 1 or antinode[1] > #map then
-		return false
-	end
-
-	if antinode[2] < 1 or antinode[2] > #map[1] then
-		return false
-	end
-
-	return true
 end
 
 local function mirror(a, b)
@@ -66,12 +55,12 @@ local function genAntinodes(map, a, b, frequency)
 	local antinodes = Array.new()
 
 	local antinodeA = newAntinode(a, b)
-	if inMap(map, antinodeA) and map[antinodeA[1]][antinodeA[2]] ~= frequency then
+	if Matrix.contains(map, antinodeA[1], antinodeA[2]) and map[antinodeA[1]][antinodeA[2]] ~= frequency then
 		antinodes:insert(antinodeA)
 	end
 
 	local antinodeB = newAntinode(b, a)
-	if inMap(map, antinodeB) and map[antinodeB[1]][antinodeB[2]] ~= frequency then
+	if Matrix.contains(map, antinodeB[1], antinodeB[2]) and map[antinodeB[1]][antinodeB[2]] ~= frequency then
 		antinodes:insert(antinodeB)
 	end
 
@@ -80,7 +69,7 @@ end
 
 local function resonate(map, antinodes, a, b)
 	local antinode = newAntinode(a, b)
-	while inMap(map, antinode) do
+	while Matrix.contains(map, antinode[1], antinode[2]) do
 		antinodes:insert(antinode)
 
 		b = a

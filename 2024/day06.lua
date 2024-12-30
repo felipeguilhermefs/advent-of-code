@@ -1,4 +1,5 @@
 local Set = require("ff.collections.set")
+local Matrix = require("matrix")
 
 local N = { -1, 0 }
 local E = { 0, 1 }
@@ -39,25 +40,13 @@ local function readInput(filepath)
 	return map, assert(guard)
 end
 
-local function inMap(map, row, col)
-	if row < 1 or row > #map then
-		return false
-	end
-
-	if col < 1 or col > #map[row] then
-		return false
-	end
-
-	return true
-end
-
 local function markPath(map, guard)
 	local distance = 0
 	local row, col, dir = guard.row, guard.col, guard.dir
-	while inMap(map, row, col) do
+	while Matrix.contains(map, row, col) do
 		local nextRow, nextCol = row + dir[1], col + dir[2]
 
-		if inMap(map, nextRow, nextCol) and map[nextRow][nextCol] == BLOCK then
+		if Matrix.contains(map, nextRow, nextCol) and map[nextRow][nextCol] == BLOCK then
 			dir = dir.next
 		end
 
@@ -76,7 +65,7 @@ end
 local function isLoop(map, guard)
 	local path = Set.new()
 	local row, col, dir = guard.row, guard.col, guard.dir
-	while inMap(map, row, col) do
+	while Matrix.contains(map, row, col) do
 		local key = string.format("%d:%d:%d:%d", row, col, dir[1], dir[2])
 		if path:contains(key) then
 			return true
@@ -84,7 +73,7 @@ local function isLoop(map, guard)
 
 		local nextRow, nextCol = row + dir[1], col + dir[2]
 
-		if inMap(map, nextRow, nextCol) and map[nextRow][nextCol] == BLOCK then
+		if Matrix.contains(map, nextRow, nextCol) and map[nextRow][nextCol] == BLOCK then
 			dir = dir.next
 		else
 			path:add(key)
@@ -122,9 +111,6 @@ local function countLoops(map, guard)
 end
 
 return function (filepath)
-	local a = Set.new()
-	a:add("1:2:3:4")
-	print(a:contains("1:2:3:4"))
 	local map, guard = readInput(filepath)
 	local distance = markPath(map, guard)
 

@@ -1,4 +1,5 @@
 local Set = require("ff.collections.set")
+local Matrix = require("matrix")
 
 local N = { -1, 0 }
 local E = { 0, 1 }
@@ -19,23 +20,11 @@ local function readInput(filepath)
 	return map
 end
 
-local function inMap(map, row, col)
-	if row < 1 or row > #map then
-		return false
-	end
-
-	if col < 1 or col > #map[row] then
-		return false
-	end
-
-	return true
-end
-
 local function walkTrails(map, row, col, height, peaks)
 	height = height or 0
 	peaks = peaks or Set.new()
 
-	if not inMap(map, row, col) then
+	if not Matrix.contains(map, row, col) then
 		return peaks, 0
 	end
 

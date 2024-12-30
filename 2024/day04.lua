@@ -1,3 +1,5 @@
+local Matrix = require("matrix")
+
 local N = { -1, 0 }
 local NE = { -1, 1 }
 local E = { 0, 1 }
@@ -19,18 +21,6 @@ local function readInput(filepath)
 	return map
 end
 
-local function inGrid(map, row, col)
-	if row < 1 or row > #map then
-		return false
-	end
-
-	if col < 1 or col > #map[row] then
-		return false
-	end
-
-	return true
-end
-
 local function isXMAS(map, row, col, dir)
 	-- try out the letters in sequence in a given direction
 	local mas = { "M", "A", "S" }
@@ -38,7 +28,7 @@ local function isXMAS(map, row, col, dir)
 		row = row + dir[1]
 		col = col + dir[2]
 
-		if not inGrid(map, row, col) then
+		if not Matrix.contains(map, row, col) then
 			return false
 		end
 
@@ -78,7 +68,7 @@ local function isCrossMAS(map, row, col, dir)
 	for letter, axis in pairs(ms) do
 		local lRow = row + dir[1] * axis
 		local lCol = col + dir[2] * axis
-		if not inGrid(map, lRow, lCol) then
+		if not Matrix.contains(map, lRow, lCol) then
 			return false
 		end
 

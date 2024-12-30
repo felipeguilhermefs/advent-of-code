@@ -1,5 +1,6 @@
 local Set = require("ff.collections.set")
 local Queue = require("ff.collections.queue")
+local Matrix = require("matrix")
 
 local N = { -1, 0 }
 local NE = { -1, 1 }
@@ -30,18 +31,6 @@ local function readInput(filepath)
 	return map
 end
 
-local function inMap(map, row, col)
-	if row < 1 or row > #map then
-		return false
-	end
-
-	if col < 1 or col > #map[row] then
-		return false
-	end
-
-	return true
-end
-
 local function id(row, col)
 	return string.format("%d:%d", row, col)
 end
@@ -54,7 +43,7 @@ local function isOuterCorner(map, row, col, dir, neighborsDir)
 	local plant = map[row][col]
 	local oRow, oCol = row + dir[1], col + dir[2]
 
-	if inMap(map, oRow, oCol) and map[oRow][oCol] ~= plant then
+	if Matrix.contains(map, oRow, oCol) and map[oRow][oCol] ~= plant then
 		return neighborsDir:contains(dir.outer[1], dir.outer[2])
 	end
 	return false
@@ -106,7 +95,7 @@ local function determineRegions(map, row, col)
 		local neighborsDir = Set.new()
 		for _, dir in pairs(DIRECTIONS) do
 			local nRow, nCol = cur.row + dir[1], cur.col + dir[2]
-			if inMap(map, nRow, nCol) and map[nRow][nCol] == plant then
+			if Matrix.contains(map, nRow, nCol) and map[nRow][nCol] == plant then
 				local neighbor = Node(nRow, nCol, dir)
 				if not area:contains(neighbor.id) then
 					toMap:enqueue(neighbor)
