@@ -17,18 +17,18 @@ local function readInput(filepath)
 		end
 		map[#map + 1] = row
 	end
-	return map
+	return Matrix.new(map)
 end
 
 local function walkTrails(map, row, col, height, peaks)
 	height = height or 0
 	peaks = peaks or Set.new()
 
-	if not Matrix.contains(map, row, col) then
+	if not map:contains(row, col) then
 		return peaks, 0
 	end
 
-	if map[row][col] ~= height then
+	if map._m[row][col] ~= height then
 		return peaks, 0
 	end
 
@@ -51,8 +51,8 @@ return function(filepath)
 	local score = 0
 	local trails = 0
 
-	for row, _ in pairs(map) do
-		for col, height in pairs(map[row]) do
+	for row, _ in pairs(map._m) do
+		for col, height in pairs(map._m[row]) do
 			if height == 0 then
 				local peaks, count = walkTrails(map, row, col)
 				score = score + #peaks

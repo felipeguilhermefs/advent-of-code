@@ -12,7 +12,7 @@ local function readInput(filepath)
 		end
 		table.insert(map, row)
 	end
-	return map
+	return Matrix.new(map)
 end
 
 local function mirror(a, b)
@@ -21,8 +21,8 @@ end
 
 local function groupAntennas(map)
 	local antennas = HashMap.new()
-	for row, _ in pairs(map) do
-		for col, pos in pairs(map[row]) do
+	for row, _ in pairs(map._m) do
+		for col, pos in pairs(map._m[row]) do
 			if not pos:match("%w") then
 				goto continue
 			end
@@ -55,12 +55,12 @@ local function genAntinodes(map, a, b, frequency)
 	local antinodes = Array.new()
 
 	local antinodeA = newAntinode(a, b)
-	if Matrix.contains(map, antinodeA[1], antinodeA[2]) and map[antinodeA[1]][antinodeA[2]] ~= frequency then
+	if map:contains(antinodeA[1], antinodeA[2]) and map._m[antinodeA[1]][antinodeA[2]] ~= frequency then
 		antinodes:insert(antinodeA)
 	end
 
 	local antinodeB = newAntinode(b, a)
-	if Matrix.contains(map, antinodeB[1], antinodeB[2]) and map[antinodeB[1]][antinodeB[2]] ~= frequency then
+	if map:contains(antinodeB[1], antinodeB[2]) and map._m[antinodeB[1]][antinodeB[2]] ~= frequency then
 		antinodes:insert(antinodeB)
 	end
 
@@ -69,7 +69,7 @@ end
 
 local function resonate(map, antinodes, a, b)
 	local antinode = newAntinode(a, b)
-	while Matrix.contains(map, antinode[1], antinode[2]) do
+	while map:contains(antinode[1], antinode[2]) do
 		antinodes:insert(antinode)
 
 		b = a

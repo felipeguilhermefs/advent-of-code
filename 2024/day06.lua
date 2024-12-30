@@ -37,21 +37,21 @@ local function readInput(filepath)
 		end
 		map[#map + 1] = row
 	end
-	return map, assert(guard)
+	return Matrix.new(map), assert(guard)
 end
 
 local function markPath(map, guard)
 	local distance = 0
 	local row, col, dir = guard.row, guard.col, guard.dir
-	while Matrix.contains(map, row, col) do
+	while map:contains(row, col) do
 		local nextRow, nextCol = row + dir[1], col + dir[2]
 
-		if Matrix.contains(map, nextRow, nextCol) and map[nextRow][nextCol] == BLOCK then
+		if map:contains(nextRow, nextCol) and map._m[nextRow][nextCol] == BLOCK then
 			dir = dir.next
 		end
 
-		if map[row][col] ~= VISITED then
-			map[row][col] = VISITED
+		if map._m[row][col] ~= VISITED then
+			map._m[row][col] = VISITED
 			distance = distance + 1
 		end
 
@@ -65,7 +65,7 @@ end
 local function isLoop(map, guard)
 	local path = Set.new()
 	local row, col, dir = guard.row, guard.col, guard.dir
-	while Matrix.contains(map, row, col) do
+	while map:contains(row, col) do
 		local key = string.format("%d:%d:%d:%d", row, col, dir[1], dir[2])
 		if path:contains(key) then
 			return true
@@ -73,7 +73,7 @@ local function isLoop(map, guard)
 
 		local nextRow, nextCol = row + dir[1], col + dir[2]
 
-		if Matrix.contains(map, nextRow, nextCol) and map[nextRow][nextCol] == BLOCK then
+		if map:contains(nextRow, nextCol) and map._m[nextRow][nextCol] == BLOCK then
 			dir = dir.next
 		else
 			path:add(key)
@@ -88,8 +88,8 @@ end
 
 local function countLoops(map, guard)
 	local count = 0
-	for row, _ in pairs(map) do
-		for col, pos in pairs(map[row]) do
+	for row, _ in pairs(map._m) do
+		for col, pos in pairs(map._m[row]) do
 			if pos ~= VISITED then
 				goto continue
 			end
@@ -98,11 +98,11 @@ local function countLoops(map, guard)
 				goto continue
 			end
 
-			map[row][col] = BLOCK
+			map._m[row][col] = BLOCK
 			if isLoop(map, guard) then
 				count = count + 1
 			end
-			map[row][col] = pos
+			map._m[row][col] = pos
 
 			::continue::
 		end

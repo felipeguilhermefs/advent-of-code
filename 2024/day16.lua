@@ -2,6 +2,7 @@ local HashMap = require("ff.collections.hashmap")
 local Heap = require("ff.collections.heap")
 local Queue = require("ff.collections.queue")
 local Set = require("ff.collections.set")
+local Matrix = require("matrix")
 
 local START = "S"
 local END = "E"
@@ -46,7 +47,7 @@ local function readInput(filepath)
 		table.insert(map, row)
 	end
 
-	return map, assert(start, "no start"), assert(finish, "no finish")
+	return Matrix.new(map), assert(start, "no start"), assert(finish, "no finish")
 end
 
 local function Node(row, col, dir, score, prev)
@@ -110,7 +111,7 @@ return function(filepath)
 		end
 
 		local nextRow, nextCol = cur.row + cur.dir.row, cur.col + cur.dir.col
-		if map[nextRow][nextCol] ~= WALL then
+		if map._m[nextRow][nextCol] ~= WALL then
 			pq:push(Node(nextRow, nextCol, cur.dir, cur.score + 1, cur))
 		end
 

@@ -1,4 +1,5 @@
 local HashMap = require("ff.collections.hashmap")
+local Matrix = require("matrix")
 
 local BLOCK = "#"
 local START = "S"
@@ -52,7 +53,7 @@ local function readInput(filepath)
 		table.insert(map, row)
 	end
 
-	return map, assert(start, "no start"), assert(finish, "no finish")
+	return Matrix.new(map), assert(start, "no start"), assert(finish, "no finish")
 end
 
 local function normalLap(map, start, finish)
@@ -66,7 +67,7 @@ local function normalLap(map, start, finish)
 	while curPosition ~= finish do
 		for _, dir in pairs(DIR) do
 			local nextPosition = Position.new(curPosition.row + dir.row, curPosition.col + dir.col)
-			if map[nextPosition.row][nextPosition.col] ~= BLOCK and timeAtPosition:get(nextPosition) == nil then
+			if map._m[nextPosition.row][nextPosition.col] ~= BLOCK and timeAtPosition:get(nextPosition) == nil then
 				local nextTime = curTime + 1
 				timeAtPosition:put(nextPosition, nextTime)
 				positionAtTime:put(nextTime, nextPosition)

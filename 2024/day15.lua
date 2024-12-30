@@ -1,5 +1,6 @@
 local HashMap = require("ff.collections.hashmap")
 local Queue = require("ff.collections.queue")
+local Matrix = require("matrix")
 
 local N = { row = -1, col = 0 }
 local E = { row = 0, col = 1 }
@@ -37,11 +38,11 @@ local function copyCell(from, to)
 end
 
 local function getTile(map, cell)
-	return map[cell.row][cell.col]
+	return map._m[cell.row][cell.col]
 end
 
 local function putTile(map, cell, tile)
-	map[cell.row][cell.col] = tile
+	map._m[cell.row][cell.col] = tile
 end
 
 local function readInput(filepath)
@@ -65,13 +66,13 @@ local function readInput(filepath)
 		end
 	end
 
-	return map, movements, robot
+	return Matrix.new(map), movements, robot
 end
 
 local function sumGPS(map)
 	local sum = 0
-	for row, _ in pairs(map) do
-		for col, tile in pairs(map[row]) do
+	for row, _ in pairs(map._m) do
+		for col, tile in pairs(map._m[row]) do
 			if tile == BOX or tile == LBOX then
 				sum = sum + (100 * (row - 1) + (col - 1))
 			end
@@ -122,7 +123,7 @@ local function doMove(map, robot, move)
 		end
 
 		while afterCell.col ~= robot.col - dir.col do
-			map[afterCell.row][afterCell.col] = map[afterCell.row][afterCell.col - dir.col]
+			map._m[afterCell.row][afterCell.col] = map._m[afterCell.row][afterCell.col - dir.col]
 			afterCell.col = afterCell.col - dir.col
 		end
 		putTile(map, robot, SPACE)
@@ -131,7 +132,7 @@ local function doMove(map, robot, move)
 		local q = Queue.new()
 		q:enqueue(robot)
 		local toMove = HashMap.new()
-		toMove:put(nextCell.id, { nextCell, map[nextCell.row][nextCell.col] })
+		toMove:put(nextCell.id, { nextCell, map._m[nextCell.row][nextCell.col] })
 
 		while not q:empty() do
 			local cur = q:dequeue()
@@ -146,18 +147,18 @@ local function doMove(map, robot, move)
 				goto continue
 			end
 
-			toMove:put(afterCell.id, { afterCell, map[afterCell.row][afterCell.col] })
+			toMove:put(afterCell.id, { afterCell, map._m[afterCell.row][afterCell.col] })
 
 			if getTile(map, afterCell) == LBOX then
 				q:enqueue(afterCell)
 				local rightSide = moveCell(afterCell, E)
 				q:enqueue(rightSide)
-				toMove:put(rightSide.id, { rightSide, map[rightSide.row][rightSide.col] })
+				toMove:put(rightSide.id, { rightSide, map._m[rightSide.row][rightSide.col] })
 			elseif getTile(map, afterCell) == RBOX then
 				q:enqueue(afterCell)
 				local leftSide = moveCell(afterCell, W)
 				q:enqueue(leftSide)
-				toMove:put(leftSide.id, { leftSide, map[leftSide.row][leftSide.col] })
+				toMove:put(leftSide.id, { leftSide, map._m[leftSide.row][leftSide.col] })
 			end
 
 			::continue::
@@ -181,7 +182,7 @@ end
 local function widenMap(map)
 	local wide = {}
 	local robot
-	for _, row in pairs(map) do
+	for _, row in pairs(map._m) do
 		local wideRow = {}
 		for _, tile in pairs(row) do
 			if tile == SPACE then
@@ -203,7 +204,7 @@ local function widenMap(map)
 		end
 		table.insert(wide, wideRow)
 	end
-	return wide, robot
+	return Matrix.new(wide), robot
 end
 
 return function(filepath)

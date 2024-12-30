@@ -28,7 +28,7 @@ local function readInput(filepath)
 		end
 		table.insert(map, row)
 	end
-	return map
+	return Matrix.new(map)
 end
 
 local function id(row, col)
@@ -40,10 +40,10 @@ local function Node(row, col, dir)
 end
 
 local function isOuterCorner(map, row, col, dir, neighborsDir)
-	local plant = map[row][col]
+	local plant = map._m[row][col]
 	local oRow, oCol = row + dir[1], col + dir[2]
 
-	if Matrix.contains(map, oRow, oCol) and map[oRow][oCol] ~= plant then
+	if map:contains(oRow, oCol) and map._m[oRow][oCol] ~= plant then
 		return neighborsDir:contains(dir.outer[1], dir.outer[2])
 	end
 	return false
@@ -78,7 +78,7 @@ local function countCorners(map, row, col, neighborsDir)
 end
 
 local function determineRegions(map, row, col)
-	local plant = map[row][col]
+	local plant = map._m[row][col]
 	local area = Set.new()
 	local perimeter = 0
 	local corners = 0
@@ -95,7 +95,7 @@ local function determineRegions(map, row, col)
 		local neighborsDir = Set.new()
 		for _, dir in pairs(DIRECTIONS) do
 			local nRow, nCol = cur.row + dir[1], cur.col + dir[2]
-			if Matrix.contains(map, nRow, nCol) and map[nRow][nCol] == plant then
+			if map:contains(nRow, nCol) and map._m[nRow][nCol] == plant then
 				local neighbor = Node(nRow, nCol, dir)
 				if not area:contains(neighbor.id) then
 					toMap:enqueue(neighbor)
@@ -119,8 +119,8 @@ return function(filepath)
 	local total = 0
 	local withDiscount = 0
 	local mapped = Set.new()
-	for row, _ in pairs(map) do
-		for col, _ in pairs(map[row]) do
+	for row, _ in pairs(map._m) do
+		for col, _ in pairs(map._m[row]) do
 			if mapped:contains(id(row, col)) then
 				goto continue
 			end

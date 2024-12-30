@@ -46,13 +46,13 @@ local function createMap(size)
 		end
 		table.insert(map, row)
 	end
-	return map
+	return Matrix.new(map)
 end
 
 local function putTiles(map, blocks, low, high, tile)
 	for i = low, high do
 		local block = blocks[i]
-		map[block.row][block.col] = tile
+		map._m[block.row][block.col] = tile
 	end
 end
 
@@ -66,11 +66,11 @@ local function bfs(map, start, finish)
 		local cur = toVisit:dequeue()
 		for _, dir in pairs(DIR) do
 			local nextCell = Cell(cur.row + dir.row, cur.col + dir.col)
-			if not Matrix.contains(map, nextCell.row, nextCell.col) then
+			if not map:contains(nextCell.row, nextCell.col) then
 				goto continue
 			end
 
-			if map[nextCell.row][nextCell.col] == BLOCK then
+			if map._m[nextCell.row][nextCell.col] == BLOCK then
 				goto continue
 			end
 

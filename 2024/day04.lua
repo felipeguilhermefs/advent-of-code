@@ -18,7 +18,7 @@ local function readInput(filepath)
 		end
 		table.insert(map, row)
 	end
-	return map
+	return Matrix.new(map)
 end
 
 local function isXMAS(map, row, col, dir)
@@ -28,11 +28,11 @@ local function isXMAS(map, row, col, dir)
 		row = row + dir[1]
 		col = col + dir[2]
 
-		if not Matrix.contains(map, row, col) then
+		if not map:contains(row, col) then
 			return false
 		end
 
-		if map[row][col] ~= letter then
+		if map._m[row][col] ~= letter then
 			return false
 		end
 	end
@@ -44,8 +44,8 @@ local function countXMAS(map)
 	local directions = { N, NE, NW, W, E, S, SE, SW }
 	local sum = 0
 
-	for row, _ in pairs(map) do
-		for col, letter in pairs(map[row]) do
+	for row, _ in pairs(map._m) do
+		for col, letter in pairs(map._m[row]) do
 			if letter ~= "X" then
 				goto continue
 			end
@@ -68,11 +68,11 @@ local function isCrossMAS(map, row, col, dir)
 	for letter, axis in pairs(ms) do
 		local lRow = row + dir[1] * axis
 		local lCol = col + dir[2] * axis
-		if not Matrix.contains(map, lRow, lCol) then
+		if not map:contains(lRow, lCol) then
 			return false
 		end
 
-		if map[lRow][lCol] ~= letter then
+		if map._m[lRow][lCol] ~= letter then
 			return false
 		end
 	end
@@ -85,8 +85,8 @@ local function countCrossMAS(map)
 	local directions = { NE, NW, SE, SW }
 	local sum = 0
 
-	for row, _ in pairs(map) do
-		for col, letter in pairs(map[row]) do
+	for row, _ in pairs(map._m) do
+		for col, letter in pairs(map._m[row]) do
 			if letter ~= "A" then
 				goto continue
 			end
