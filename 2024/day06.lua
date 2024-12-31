@@ -88,24 +88,22 @@ end
 
 local function countLoops(map, guard)
 	local count = 0
-	for row, _ in pairs(map._m) do
-		for col, pos in pairs(map._m[row]) do
-			if pos ~= VISITED then
-				goto continue
-			end
-
-			if row == guard.row and col == guard.col then
-				goto continue
-			end
-
-			map._m[row][col] = BLOCK
-			if isLoop(map, guard) then
-				count = count + 1
-			end
-			map._m[row][col] = pos
-
-			::continue::
+	for _, cell in pairs(map) do
+		if cell.value ~= VISITED then
+			goto continue
 		end
+
+		if cell.row == guard.row and cell.col == guard.col then
+			goto continue
+		end
+
+		map._m[cell.row][cell.col] = BLOCK
+		if isLoop(map, guard) then
+			count = count + 1
+		end
+		map._m[cell.row][cell.col] = cell.value
+
+		::continue::
 	end
 	return count
 end

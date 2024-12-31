@@ -44,19 +44,17 @@ local function countXMAS(map)
 	local directions = { N, NE, NW, W, E, S, SE, SW }
 	local sum = 0
 
-	for row, _ in pairs(map._m) do
-		for col, letter in pairs(map._m[row]) do
-			if letter ~= "X" then
-				goto continue
-			end
-
-			for _, dir in pairs(directions) do
-				if isXMAS(map, row, col, dir) then
-					sum = sum + 1
-				end
-			end
-			::continue::
+	for _, cell in pairs(map) do
+		if cell.value ~= "X" then
+			goto continue
 		end
+
+		for _, dir in pairs(directions) do
+			if isXMAS(map, cell.row, cell.col, dir) then
+				sum = sum + 1
+			end
+		end
+		::continue::
 	end
 
 	return sum
@@ -85,25 +83,23 @@ local function countCrossMAS(map)
 	local directions = { NE, NW, SE, SW }
 	local sum = 0
 
-	for row, _ in pairs(map._m) do
-		for col, letter in pairs(map._m[row]) do
-			if letter ~= "A" then
-				goto continue
-			end
-
-			local countDir = 0
-			for _, dir in pairs(directions) do
-				if isCrossMAS(map, row, col, dir) then
-					countDir = countDir + 1
-				end
-			end
-
-			-- should have 2 diagonals to have an X
-			if countDir == 2 then
-				sum = sum + 1
-			end
-			::continue::
+	for _, cell in pairs(map) do
+		if cell.value ~= "A" then
+			goto continue
 		end
+
+		local countDir = 0
+		for _, dir in pairs(directions) do
+			if isCrossMAS(map, cell.row, cell.col, dir) then
+				countDir = countDir + 1
+			end
+		end
+
+		-- should have 2 diagonals to have an X
+		if countDir == 2 then
+			sum = sum + 1
+		end
+		::continue::
 	end
 
 	return sum

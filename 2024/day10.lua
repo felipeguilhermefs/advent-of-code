@@ -51,13 +51,11 @@ return function(filepath)
 	local score = 0
 	local trails = 0
 
-	for row, _ in pairs(map._m) do
-		for col, height in pairs(map._m[row]) do
-			if height == 0 then
-				local peaks, count = walkTrails(map, row, col)
-				score = score + #peaks
-				trails = trails + count
-			end
+	for _, cell in pairs(map) do
+		if cell.value == 0 then
+			local peaks, count = walkTrails(map, cell.row, cell.col)
+			score = score + #peaks
+			trails = trails + count
 		end
 	end
 

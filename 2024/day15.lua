@@ -71,11 +71,9 @@ end
 
 local function sumGPS(map)
 	local sum = 0
-	for row, _ in pairs(map._m) do
-		for col, tile in pairs(map._m[row]) do
-			if tile == BOX or tile == LBOX then
-				sum = sum + (100 * (row - 1) + (col - 1))
-			end
+	for _, cell in pairs(map) do
+		if cell.value == BOX or cell.value == LBOX then
+			sum = sum + (100 * (cell.row - 1) + (cell.col - 1))
 		end
 	end
 	return sum

@@ -119,21 +119,19 @@ return function(filepath)
 	local total = 0
 	local withDiscount = 0
 	local mapped = Set.new()
-	for row, _ in pairs(map._m) do
-		for col, _ in pairs(map._m[row]) do
-			if mapped:contains(id(row, col)) then
-				goto continue
-			end
-			local area, perimeter, corners = determineRegions(map, row, col)
-
-			total = total + (perimeter * #area)
-			withDiscount = withDiscount + (corners * #area)
-
-			-- Add everything from area into mapped, so we skip them
-			mapped = mapped .. area
-
-			::continue::
+	for _, cell in pairs(map) do
+		if mapped:contains(id(cell.row, cell.col)) then
+			goto continue
 		end
+		local area, perimeter, corners = determineRegions(map, cell.row, cell.col)
+
+		total = total + (perimeter * #area)
+		withDiscount = withDiscount + (corners * #area)
+
+		-- Add everything from area into mapped, so we skip them
+		mapped = mapped .. area
+
+		::continue::
 	end
 	return total, withDiscount
 end

@@ -17,4 +17,29 @@ function Matrix:contains(row, col)
 	return true
 end
 
+function Matrix:__pairs()
+	local row, col = 1, 1
+	local index = 0
+	return function()
+		if row > #self._m then
+			return
+		end
+
+		if col > #self._m[row] then
+			if row == #self._m then
+				return nil
+			end
+			row = row + 1
+			col = 1
+		end
+
+		index = index + 1
+		local value = { row = row, col = col, value = self._m[row][col] }
+		col = col + 1
+		return index, value
+	end,
+		self,
+		nil
+end
+
 return Matrix

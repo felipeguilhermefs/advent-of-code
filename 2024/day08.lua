@@ -21,20 +21,18 @@ end
 
 local function groupAntennas(map)
 	local antennas = HashMap.new()
-	for row, _ in pairs(map._m) do
-		for col, pos in pairs(map._m[row]) do
-			if not pos:match("%w") then
-				goto continue
-			end
-
-			antennas
-				:compute(pos, function()
-					return Array.new()
-				end)
-				:insert({ row, col })
-
-			::continue::
+	for _, cell in pairs(map) do
+		if not cell.value:match("%w") then
+			goto continue
 		end
+
+		antennas
+			:compute(cell.value, function()
+				return Array.new()
+			end)
+			:insert({ cell.row, cell.col })
+
+		::continue::
 	end
 
 	return antennas
