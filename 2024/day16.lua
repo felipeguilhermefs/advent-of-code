@@ -111,7 +111,7 @@ return function(filepath)
 		end
 
 		local nextRow, nextCol = cur.row + cur.dir.row, cur.col + cur.dir.col
-		if map._m[nextRow][nextCol] ~= WALL then
+		if map:get(nextRow, nextCol) ~= WALL then
 			pq:push(Node(nextRow, nextCol, cur.dir, cur.score + 1, cur))
 		end
 

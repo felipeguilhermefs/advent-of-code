@@ -37,10 +37,6 @@ local function copyCell(from, to)
 	to.id, to.row, to.col = from.id, from.row, from.col
 end
 
-local function getTile(map, cell)
-	return map._m[cell.row][cell.col]
-end
-
 local function putTile(map, cell, tile)
 	map._m[cell.row][cell.col] = tile
 end
@@ -83,24 +79,24 @@ local function doMove(map, robot, move)
 	local dir = DIR[move]
 	local nextCell = moveCell(robot, dir)
 
-	if getTile(map, nextCell) == WALL then
+	if map:get(nextCell.row, nextCell.col) == WALL then
 		return
 	end
 
-	if getTile(map, nextCell) == SPACE then
+	if map:get(nextCell.row, nextCell.col) == SPACE then
 		putTile(map, robot, SPACE)
 		putTile(map, nextCell, ROBOT)
 		copyCell(nextCell, robot)
 		return
 	end
 
-	if getTile(map, nextCell) == BOX then
+	if map:get(nextCell.row, nextCell.col) == BOX then
 		local afterCell = moveCell(nextCell, dir)
-		while getTile(map, afterCell) == BOX do
+		while map:get(afterCell.row, afterCell.col) == BOX do
 			afterCell = moveCell(afterCell, dir)
 		end
 
-		if getTile(map, afterCell) == SPACE then
+		if map:get(afterCell.row, afterCell.col) == SPACE then
 			putTile(map, afterCell, BOX)
 			putTile(map, robot, SPACE)
 			putTile(map, nextCell, ROBOT)
@@ -112,16 +108,16 @@ local function doMove(map, robot, move)
 	if dir == E or dir == W then
 		local afterCell = nextCell
 
-		while getTile(map, afterCell) ~= SPACE and getTile(map, afterCell) ~= WALL do
+		while map:get(afterCell.row, afterCell.col) ~= SPACE and map:get(afterCell.row, afterCell.col) ~= WALL do
 			afterCell = moveCell(afterCell, dir)
 		end
 
-		if getTile(map, afterCell) == WALL then
+		if map:get(afterCell.row, afterCell.col) == WALL then
 			return
 		end
 
 		while afterCell.col ~= robot.col - dir.col do
-			map._m[afterCell.row][afterCell.col] = map._m[afterCell.row][afterCell.col - dir.col]
+			map._m[afterCell.row][afterCell.col] = map:get(afterCell.row, afterCell.col - dir.col)
 			afterCell.col = afterCell.col - dir.col
 		end
 		putTile(map, robot, SPACE)
@@ -130,33 +126,33 @@ local function doMove(map, robot, move)
 		local q = Queue.new()
 		q:enqueue(robot)
 		local toMove = HashMap.new()
-		toMove:put(nextCell.id, { nextCell, map._m[nextCell.row][nextCell.col] })
+		toMove:put(nextCell.id, { nextCell, map:get(nextCell.row, nextCell.col) })
 
 		while not q:empty() do
 			local cur = q:dequeue()
 			local afterCell = moveCell(cur, dir)
 
-			if getTile(map, afterCell) == WALL then
+			if map:get(afterCell.row, afterCell.col) == WALL then
 				toMove:clear()
 				break
 			end
 
-			if getTile(map, afterCell) == SPACE then
+			if map:get(afterCell.row, afterCell.col) == SPACE then
 				goto continue
 			end
 
-			toMove:put(afterCell.id, { afterCell, map._m[afterCell.row][afterCell.col] })
+			toMove:put(afterCell.id, { afterCell, map:get(afterCell.row, afterCell.col) })
 
-			if getTile(map, afterCell) == LBOX then
+			if map:get(afterCell.row, afterCell.col) == LBOX then
 				q:enqueue(afterCell)
 				local rightSide = moveCell(afterCell, E)
 				q:enqueue(rightSide)
-				toMove:put(rightSide.id, { rightSide, map._m[rightSide.row][rightSide.col] })
-			elseif getTile(map, afterCell) == RBOX then
+				toMove:put(rightSide.id, { rightSide, map:get(rightSide.row, rightSide.col) })
+			elseif map:get(afterCell.row, afterCell.col) == RBOX then
 				q:enqueue(afterCell)
 				local leftSide = moveCell(afterCell, W)
 				q:enqueue(leftSide)
-				toMove:put(leftSide.id, { leftSide, map._m[leftSide.row][leftSide.col] })
+				toMove:put(leftSide.id, { leftSide, map:get(leftSide.row, leftSide.col) })
 			end
 
 			::continue::

@@ -53,12 +53,12 @@ local function genAntinodes(map, a, b, frequency)
 	local antinodes = Array.new()
 
 	local antinodeA = newAntinode(a, b)
-	if map:contains(antinodeA[1], antinodeA[2]) and map._m[antinodeA[1]][antinodeA[2]] ~= frequency then
+	if map:get(antinodeA[1], antinodeA[2]) and map:get(antinodeA[1], antinodeA[2]) ~= frequency then
 		antinodes:insert(antinodeA)
 	end
 
 	local antinodeB = newAntinode(b, a)
-	if map:contains(antinodeB[1], antinodeB[2]) and map._m[antinodeB[1]][antinodeB[2]] ~= frequency then
+	if map:contains(antinodeB[1], antinodeB[2]) and map:get(antinodeB[1], antinodeB[2]) ~= frequency then
 		antinodes:insert(antinodeB)
 	end
 

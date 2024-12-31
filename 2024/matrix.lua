@@ -17,6 +17,12 @@ function Matrix:contains(row, col)
 	return true
 end
 
+function Matrix:get(row, col)
+	if self:contains(row, col) then
+		return self._m[row][col]
+	end
+end
+
 function Matrix:__pairs()
 	local row, col = 1, 1
 	local index = 0

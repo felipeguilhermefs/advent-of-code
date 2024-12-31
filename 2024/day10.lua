@@ -24,11 +24,7 @@ local function walkTrails(map, row, col, height, peaks)
 	height = height or 0
 	peaks = peaks or Set.new()
 
-	if not map:contains(row, col) then
-		return peaks, 0
-	end
-
-	if map._m[row][col] ~= height then
+	if map:get(row, col) ~= height then
 		return peaks, 0
 	end
 

@@ -43,7 +43,7 @@ local function isOuterCorner(map, row, col, dir, neighborsDir)
 	local plant = map._m[row][col]
 	local oRow, oCol = row + dir[1], col + dir[2]
 
-	if map:contains(oRow, oCol) and map._m[oRow][oCol] ~= plant then
+	if map:contains(oRow, oCol) and map:get(oRow, oCol) ~= plant then
 		return neighborsDir:contains(dir.outer[1], dir.outer[2])
 	end
 	return false
@@ -95,7 +95,7 @@ local function determineRegions(map, row, col)
 		local neighborsDir = Set.new()
 		for _, dir in pairs(DIRECTIONS) do
 			local nRow, nCol = cur.row + dir[1], cur.col + dir[2]
-			if map:contains(nRow, nCol) and map._m[nRow][nCol] == plant then
+			if map:get(nRow, nCol) == plant then
 				local neighbor = Node(nRow, nCol, dir)
 				if not area:contains(neighbor.id) then
 					toMap:enqueue(neighbor)

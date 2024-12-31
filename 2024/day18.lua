@@ -70,7 +70,7 @@ local function bfs(map, start, finish)
 				goto continue
 			end
 
-			if map._m[nextCell.row][nextCell.col] == BLOCK then
+			if map:get(nextCell.row, nextCell.col) == BLOCK then
 				goto continue
 			end
 

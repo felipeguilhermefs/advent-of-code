@@ -46,11 +46,11 @@ local function markPath(map, guard)
 	while map:contains(row, col) do
 		local nextRow, nextCol = row + dir[1], col + dir[2]
 
-		if map:contains(nextRow, nextCol) and map._m[nextRow][nextCol] == BLOCK then
+		if map:get(nextRow, nextCol) == BLOCK then
 			dir = dir.next
 		end
 
-		if map._m[row][col] ~= VISITED then
+		if map:get(row, col) ~= VISITED then
 			map._m[row][col] = VISITED
 			distance = distance + 1
 		end
@@ -73,7 +73,7 @@ local function isLoop(map, guard)
 
 		local nextRow, nextCol = row + dir[1], col + dir[2]
 
-		if map:contains(nextRow, nextCol) and map._m[nextRow][nextCol] == BLOCK then
+		if map:get(nextRow, nextCol) == BLOCK then
 			dir = dir.next
 		else
 			path:add(key)

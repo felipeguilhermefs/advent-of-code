@@ -28,11 +28,7 @@ local function isXMAS(map, row, col, dir)
 		row = row + dir[1]
 		col = col + dir[2]
 
-		if not map:contains(row, col) then
-			return false
-		end
-
-		if map._m[row][col] ~= letter then
+		if map:get(row, col) ~= letter then
 			return false
 		end
 	end
@@ -60,17 +56,13 @@ local function countXMAS(map)
 	return sum
 end
 
-local function isCrossMAS(map, row, col, dir)
+local function isCrossMAS(map, cell, dir)
 	-- look for M in a given position, and S in the cross opposite end
 	local ms = { ["M"] = 1, ["S"] = -1 }
 	for letter, axis in pairs(ms) do
-		local lRow = row + dir[1] * axis
-		local lCol = col + dir[2] * axis
-		if not map:contains(lRow, lCol) then
-			return false
-		end
-
-		if map._m[lRow][lCol] ~= letter then
+		local lRow = cell.row + dir[1] * axis
+		local lCol = cell.col + dir[2] * axis
+		if map:get(lRow, lCol) ~= letter then
 			return false
 		end
 	end
@@ -90,7 +82,7 @@ local function countCrossMAS(map)
 
 		local countDir = 0
 		for _, dir in pairs(directions) do
-			if isCrossMAS(map, cell.row, cell.col, dir) then
+			if isCrossMAS(map, cell, dir) then
 				countDir = countDir + 1
 			end
 		end
