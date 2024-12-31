@@ -40,7 +40,7 @@ local function Node(row, col, dir)
 end
 
 local function isOuterCorner(map, row, col, dir, neighborsDir)
-	local plant = map._m[row][col]
+	local plant = map:get(row, col)
 	local oRow, oCol = row + dir[1], col + dir[2]
 
 	if map:contains(oRow, oCol) and map:get(oRow, oCol) ~= plant then
@@ -78,7 +78,7 @@ local function countCorners(map, row, col, neighborsDir)
 end
 
 local function determineRegions(map, row, col)
-	local plant = map._m[row][col]
+	local plant = map:get(row, col)
 	local area = Set.new()
 	local perimeter = 0
 	local corners = 0

@@ -51,7 +51,7 @@ local function markPath(map, guard)
 		end
 
 		if map:get(row, col) ~= VISITED then
-			map._m[row][col] = VISITED
+			map:put(row, col, VISITED)
 			distance = distance + 1
 		end
 
@@ -80,7 +80,6 @@ local function isLoop(map, guard)
 			row = row + dir[1]
 			col = col + dir[2]
 		end
-
 	end
 
 	return false
@@ -97,18 +96,18 @@ local function countLoops(map, guard)
 			goto continue
 		end
 
-		map._m[cell.row][cell.col] = BLOCK
+		map:put(cell.row, cell.col, BLOCK)
 		if isLoop(map, guard) then
 			count = count + 1
 		end
-		map._m[cell.row][cell.col] = cell.value
+		map:put(cell.row, cell.col, VISITED)
 
 		::continue::
 	end
 	return count
 end
 
-return function (filepath)
+return function(filepath)
 	local map, guard = readInput(filepath)
 	local distance = markPath(map, guard)
 

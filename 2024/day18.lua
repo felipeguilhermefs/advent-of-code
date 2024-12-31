@@ -52,7 +52,7 @@ end
 local function putTiles(map, blocks, low, high, tile)
 	for i = low, high do
 		local block = blocks[i]
-		map._m[block.row][block.col] = tile
+		map:put(block.row, block.col, tile)
 	end
 end
 

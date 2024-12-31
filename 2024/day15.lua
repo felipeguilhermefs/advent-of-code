@@ -37,10 +37,6 @@ local function copyCell(from, to)
 	to.id, to.row, to.col = from.id, from.row, from.col
 end
 
-local function putTile(map, cell, tile)
-	map._m[cell.row][cell.col] = tile
-end
-
 local function readInput(filepath)
 	local map = {}
 	local movements = {}
@@ -84,8 +80,8 @@ local function doMove(map, robot, move)
 	end
 
 	if map:get(nextCell.row, nextCell.col) == SPACE then
-		putTile(map, robot, SPACE)
-		putTile(map, nextCell, ROBOT)
+		map:put(robot.row, robot.col, SPACE)
+		map:put(nextCell.row, nextCell.col, ROBOT)
 		copyCell(nextCell, robot)
 		return
 	end
@@ -97,9 +93,9 @@ local function doMove(map, robot, move)
 		end
 
 		if map:get(afterCell.row, afterCell.col) == SPACE then
-			putTile(map, afterCell, BOX)
-			putTile(map, robot, SPACE)
-			putTile(map, nextCell, ROBOT)
+			map:put(afterCell.row, afterCell.col, BOX)
+			map:put(robot.row, robot.col, SPACE)
+			map:put(nextCell.row, nextCell.col, ROBOT)
 			copyCell(nextCell, robot)
 		end
 		return
@@ -117,10 +113,10 @@ local function doMove(map, robot, move)
 		end
 
 		while afterCell.col ~= robot.col - dir.col do
-			map._m[afterCell.row][afterCell.col] = map:get(afterCell.row, afterCell.col - dir.col)
+			map:put(afterCell.row, afterCell.col, map:get(afterCell.row, afterCell.col - dir.col))
 			afterCell.col = afterCell.col - dir.col
 		end
-		putTile(map, robot, SPACE)
+		map:put(robot.row, robot.col, SPACE)
 		copyCell(nextCell, robot)
 	else
 		local q = Queue.new()
@@ -160,14 +156,15 @@ local function doMove(map, robot, move)
 
 		if not toMove:empty() then
 			for _, tile in pairs(toMove) do
-				putTile(map, tile[1], SPACE)
+				map:put(tile[1].row, tile[1].col, SPACE)
 			end
 			for _, tile in pairs(toMove) do
-				putTile(map, moveCell(tile[1], dir), tile[2])
+				local moved = moveCell(tile[1], dir)
+				map:put(moved.row, moved.col, tile[2])
 			end
 
-			putTile(map, robot, SPACE)
-			putTile(map, nextCell, ROBOT)
+			map:put(robot.row, robot.col, SPACE)
+			map:put(nextCell.row, nextCell.col, ROBOT)
 			copyCell(nextCell, robot)
 		end
 	end
