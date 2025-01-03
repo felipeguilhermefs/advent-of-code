@@ -1,6 +1,23 @@
 local Matrix = {}
 Matrix.__index = Matrix
 
+local function identity(a)
+	return a
+end
+
+function Matrix.fromFile(filepath, mapFn)
+	mapFn = mapFn or identity
+	local matrix = {}
+	for line in io.lines(filepath) do
+		local row = {}
+		for cell in line:gmatch(".") do
+			table.insert(row, mapFn(cell))
+		end
+		table.insert(matrix, row)
+	end
+	return Matrix.new(matrix)
+end
+
 function Matrix.new(matrix)
 	return setmetatable({ _m = matrix }, Matrix)
 end
@@ -15,6 +32,14 @@ function Matrix:contains(row, col)
 	end
 
 	return true
+end
+
+function Matrix:find(value)
+	for _, cell in pairs(self) do
+		if cell.value == value then
+			return cell
+		end
+	end
 end
 
 function Matrix:get(row, col)

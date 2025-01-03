@@ -19,18 +19,6 @@ SW.outer = { S, W }
 local DIRECTIONS = { N, E, S, W }
 local OUTER_DIRECTIONS = {NE, NW, SE, SW}
 
-local function readInput(filepath)
-	local map = {}
-	for line in io.lines(filepath) do
-		local row = {}
-		for tile in line:gmatch(".") do
-			table.insert(row, tile)
-		end
-		table.insert(map, row)
-	end
-	return Matrix.new(map)
-end
-
 local function id(row, col)
 	return string.format("%d:%d", row, col)
 end
@@ -114,7 +102,7 @@ local function determineRegions(map, row, col)
 end
 
 return function(filepath)
-	local map = readInput(filepath)
+	local map = Matrix.fromFile(filepath)
 
 	local total = 0
 	local withDiscount = 0

@@ -3,18 +3,6 @@ local HashMap = require("ff.collections.hashmap")
 local Set = require("ff.collections.set")
 local Matrix = require("matrix")
 
-local function readInput(filepath)
-	local map = {}
-	for line in io.lines(filepath) do
-		local row = {}
-		for tile in line:gmatch(".") do
-			table.insert(row, tile)
-		end
-		table.insert(map, row)
-	end
-	return Matrix.new(map)
-end
-
 local function mirror(a, b)
 	return a - (b - a)
 end
@@ -87,7 +75,7 @@ local function genAntinodesWithResonance(map, a, b)
 end
 
 return function(filepath)
-	local map = readInput(filepath)
+	local map = Matrix.fromFile(filepath)
 	local frequencies = groupAntennas(map)
 
 	local antinodes = Set.new()

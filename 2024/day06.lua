@@ -11,33 +11,14 @@ E.next = S
 S.next = W
 W.next = N
 
-local DIR = {
-	["^"] = N,
-	[">"] = E,
-	["v"] = S,
-	["<"] = W,
-}
-
 local BLOCK = "#"
 local VISITED = "X"
 
 local function readInput(filepath)
-	local map = {}
-	local guard
-	for line in io.lines(filepath) do
-		local row = {}
-		for pos in line:gmatch(".") do
-			if guard == nil then
-				local dir = DIR[pos]
-				if dir then
-					guard = { row = #map + 1, col = #row + 1, dir = dir }
-				end
-			end
-			row[#row + 1] = pos
-		end
-		map[#map + 1] = row
-	end
-	return Matrix.new(map), assert(guard)
+	local map = Matrix.fromFile(filepath)
+	local cell = assert(map:find("^"))
+	local guard = { row = cell.row, col = cell.col, dir = N }
+	return map, guard
 end
 
 local function markPath(map, guard)

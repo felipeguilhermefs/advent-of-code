@@ -35,25 +35,10 @@ function Position.__tostring(this)
 end
 
 local function readInput(filepath)
-	local map, start, finish = {}, nil, nil
-
-	for line in io.lines(filepath) do
-		local row = {}
-		for tile in line:gmatch(".") do
-			table.insert(row, tile)
-
-			if start == nil and tile == START then
-				start = Position.new(#map + 1, #row)
-			end
-
-			if finish == nil and tile == END then
-				finish = Position.new(#map + 1, #row)
-			end
-		end
-		table.insert(map, row)
-	end
-
-	return Matrix.new(map), assert(start, "no start"), assert(finish, "no finish")
+	local map = Matrix.fromFile(filepath)
+	local start = assert(map:find(START))
+	local finish = assert(map:find(END))
+	return map, Position.new(start.row, start.col), Position.new(finish.row, finish.col)
 end
 
 local function normalLap(map, start, finish)

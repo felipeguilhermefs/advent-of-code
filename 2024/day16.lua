@@ -29,25 +29,10 @@ local function id(...)
 end
 
 local function readInput(filepath)
-	local map, start, finish = {}, nil, nil
-
-	for line in io.lines(filepath) do
-		local row = {}
-		for tile in line:gmatch(".") do
-			table.insert(row, tile)
-
-			if start == nil and tile == START then
-				start = Cell(#map + 1, #row)
-			end
-
-			if finish == nil and tile == END then
-				finish = Cell(#map + 1, #row)
-			end
-		end
-		table.insert(map, row)
-	end
-
-	return Matrix.new(map), assert(start, "no start"), assert(finish, "no finish")
+	local map = Matrix.fromFile(filepath)
+	local start = assert(map:find(START))
+	local finish = assert(map:find(END))
+	return map, Cell(start.row, start.col), Cell(finish.row, finish.col)
 end
 
 local function Node(row, col, dir, score, prev)

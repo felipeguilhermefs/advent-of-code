@@ -8,18 +8,6 @@ local W = { 0, -1 }
 
 local DIRECTIONS = { N, E, S, W }
 
-local function readInput(filepath)
-	local map = {}
-	for line in io.lines(filepath) do
-		local row = {}
-		for height in line:gmatch("%d") do
-			row[#row + 1] = tonumber(height)
-		end
-		map[#map + 1] = row
-	end
-	return Matrix.new(map)
-end
-
 local function walkTrails(map, row, col, height, peaks)
 	height = height or 0
 	peaks = peaks or Set.new()
@@ -43,7 +31,7 @@ local function walkTrails(map, row, col, height, peaks)
 end
 
 return function(filepath)
-	local map = readInput(filepath)
+	local map = Matrix.fromFile(filepath, tonumber)
 	local score = 0
 	local trails = 0
 

@@ -9,18 +9,6 @@ local SW = { 1, -1 }
 local W = { 0, -1 }
 local NW = { -1, -1 }
 
-local function readInput(filepath)
-	local map = {}
-	for line in io.lines(filepath) do
-		local row = {}
-		for tile in line:gmatch(".") do
-			table.insert(row, tile)
-		end
-		table.insert(map, row)
-	end
-	return Matrix.new(map)
-end
-
 local function isXMAS(map, row, col, dir)
 	-- try out the letters in sequence in a given direction
 	local mas = { "M", "A", "S" }
@@ -98,6 +86,6 @@ local function countCrossMAS(map)
 end
 
 return function(filepath)
-	local map = readInput(filepath)
+	local map = Matrix.fromFile(filepath)
 	return countXMAS(map), countCrossMAS(map)
 end
