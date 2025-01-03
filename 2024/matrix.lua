@@ -18,6 +18,18 @@ function Matrix.fromFile(filepath, mapFn)
 	return Matrix.new(matrix)
 end
 
+function Matrix.fill(size, value)
+	local m = {}
+	for _ = 1, size do
+		local row = {}
+		for _ = 1, size do
+			table.insert(row, value)
+		end
+		table.insert(m, row)
+	end
+	return Matrix.new(m)
+end
+
 function Matrix.new(matrix)
 	return setmetatable({ _m = matrix }, Matrix)
 end

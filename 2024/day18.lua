@@ -37,18 +37,6 @@ local function readInput(filepath)
 	return blocks
 end
 
-local function createMap(size)
-	local map = {}
-	for _ = 1, size do
-		local row = {}
-		for _ = 1, size do
-			table.insert(row, SPACE)
-		end
-		table.insert(map, row)
-	end
-	return Matrix.new(map)
-end
-
 local function putTiles(map, blocks, low, high, tile)
 	for i = low, high do
 		local block = blocks[i]
@@ -115,7 +103,7 @@ end
 
 return function(filepath)
 	local size = 71
-	local map = createMap(size)
+	local map = Matrix.fill(size, SPACE)
 	local blocks = readInput(filepath)
 	putTiles(map, blocks, 1, 1024, BLOCK)
 
