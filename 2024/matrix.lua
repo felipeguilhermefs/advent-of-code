@@ -23,6 +23,10 @@ function Matrix:get(row, col)
 	end
 end
 
+function Matrix:rows()
+	return pairs(self._m)
+end
+
 function Matrix:put(row, col, value)
 	if value ~= nil and self:contains(row, col) then
 		self._m[row][col] = value

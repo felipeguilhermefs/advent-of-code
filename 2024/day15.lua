@@ -173,7 +173,7 @@ end
 local function widenMap(map)
 	local wide = {}
 	local robot
-	for _, row in pairs(map._m) do
+	for _, row in map:rows() do
 		local wideRow = {}
 		for _, tile in pairs(row) do
 			if tile == SPACE then
