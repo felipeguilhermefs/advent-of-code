@@ -1,11 +1,9 @@
 [2024](https://adventofcode.com/2024) Lets GO!
 
-### Install Lua or LuaJIT
+### Install Lua
 
 ```sh
 brew install lua
-# OR
-brew install luajit
 ```
 
 ### Install LuaRocks (package manager)
@@ -22,9 +20,43 @@ luarocks install ff-lua
 
 It has datastructures that default lua does not.
 
-### Run
+### Input
+
+Copy and paste the puzzle input in a file `day<N>.txt`, as `<N>` being the day.
+Ex:
 
 ```sh
-lua day<N>.lua <input filepath> 
-# OR luajit
+ls
+
+> day01.lua day01.txt
+
 ```
+
+### Result
+
+For checking the result save a file `day<N>.res` in this directory.
+Ex:
+
+```sh
+ls
+
+> day01.lua day01.txt day01.res
+
+```
+
+The file must have 2 lines, each line with the expected result for each puzzle part. You can have 2 empty lines as well.
+
+### Run
+
+To run a specific day you can send the day number as argument.
+Ex:
+```sh
+lua run.lua 1 #for day 1
+```
+
+Or you can run all days by skipping the argument.
+Ex:
+```sh
+lua run.lua
+```
+
