@@ -28,10 +28,19 @@ local function runDay(d)
 
 	local result1, result2 = result(day .. ".res")
 
-	assert(tostring(part1) == result1, string.format("Error part 1, expected %s got %s", result1, part1))
-	assert(tostring(part2) == result2, string.format("Error part 2, expected %s got %s", result2, part2))
-
-	print(string.format("Day %02d OK", d))
+	print("\n#############################")
+	print(string.format("Day %02d:", d))
+	if tostring(part1) == result1 then
+		print("\tPart 1 OK")
+	else
+		print(string.format("\tPart 1 ERROR: Expected %s, got %s", result1, part1))
+	end
+	if tostring(part2) == result2 then
+		print("\tPart 2 OK")
+	else
+		print(string.format("\tPart 2 ERROR: Expected %s, got %s", result2, part2))
+	end
+	print("#############################\n")
 end
 
 local function main()
