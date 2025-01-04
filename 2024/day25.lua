@@ -29,7 +29,7 @@ local function readInput(filepath)
 			for tile in line:gmatch(".") do
 				if tile == MATERIAL then
 					hasMaterial = true
-					schematic.values:put(schematic.values:get(index) + 1, index)
+					schematic.values:put(index, schematic.values:get(index) + 1)
 				end
 				index = index + 1
 			end
