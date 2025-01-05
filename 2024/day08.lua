@@ -18,7 +18,7 @@ local function groupAntennas(map)
 			:compute(cell.value, function()
 				return Array.new()
 			end)
-			:insert({ cell.row, cell.col })
+			:insert(cell)
 
 		::continue::
 	end
@@ -27,12 +27,12 @@ local function groupAntennas(map)
 end
 
 local function newAntinode(a, b)
-	return { mirror(a[1], b[1]), mirror(a[2], b[2]) }
+	return Matrix.Cell(mirror(a.row, b.row), mirror(a.col, b.col))
 end
 
 local function add(antinodes, toAdd)
 	for _, antinode in pairs(toAdd) do
-		local key = string.format("%d:%d", antinode[1], antinode[2])
+		local key = string.format("%d:%d", antinode.row, antinode.col)
 		antinodes:add(key)
 	end
 end
@@ -41,12 +41,12 @@ local function genAntinodes(map, a, b, frequency)
 	local antinodes = Array.new()
 
 	local antinodeA = newAntinode(a, b)
-	if map:get(antinodeA[1], antinodeA[2]) and map:get(antinodeA[1], antinodeA[2]) ~= frequency then
+	if map:get(antinodeA.row, antinodeA.col) and map:get(antinodeA.row, antinodeA.col) ~= frequency then
 		antinodes:insert(antinodeA)
 	end
 
 	local antinodeB = newAntinode(b, a)
-	if map:contains(antinodeB[1], antinodeB[2]) and map:get(antinodeB[1], antinodeB[2]) ~= frequency then
+	if map:contains(antinodeB.row, antinodeB.col) and map:get(antinodeB.row, antinodeB.col) ~= frequency then
 		antinodes:insert(antinodeB)
 	end
 
@@ -55,7 +55,7 @@ end
 
 local function resonate(map, antinodes, a, b)
 	local antinode = newAntinode(a, b)
-	while map:contains(antinode[1], antinode[2]) do
+	while map:contains(antinode.row, antinode.col) do
 		antinodes:insert(antinode)
 
 		b = a

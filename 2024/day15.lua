@@ -21,34 +21,22 @@ local RBOX = "]"
 local SPACE = "."
 local WALL = "#"
 
-local function id(row, col)
-	return string.format("%d:%d", row, col)
-end
-
-local function Cell(row, col)
-	return { id = id(row, col), row = row, col = col }
-end
-
 local function moveCell(cell, dir)
-	return Cell(cell.row + dir.row, cell.col + dir.col)
+	return Matrix.Cell(cell.row + dir.row, cell.col + dir.col)
 end
 
 local function copyCell(from, to)
-	to.id, to.row, to.col = from.id, from.row, from.col
+	to.row, to.col = from.row, from.col
 end
 
 local function readInput(filepath)
 	local map = {}
 	local movements = {}
-	local robot
 	for line in io.lines(filepath) do
 		if line:match(WALL) then
 			local row = {}
 			for tile in line:gmatch(".") do
-				table.insert(row, tile)
-				if robot == nil and tile == ROBOT then
-					robot = Cell(#map + 1, #row)
-				end
+				table.insert(row, Matrix.Cell(#map + 1, #row + 1, tile))
 			end
 			table.insert(map, row)
 		else
@@ -58,7 +46,7 @@ local function readInput(filepath)
 		end
 	end
 
-	return Matrix.new(map), movements, robot
+	return Matrix.new(map), movements
 end
 
 local function sumGPS(map)
@@ -122,7 +110,7 @@ local function doMove(map, robot, move)
 		local q = Queue.new()
 		q:enqueue(robot)
 		local toMove = HashMap.new()
-		toMove:put(nextCell.id, { nextCell, map:get(nextCell.row, nextCell.col) })
+		toMove:put(nextCell, { nextCell, map:get(nextCell.row, nextCell.col) })
 
 		while not q:empty() do
 			local cur = q:dequeue()
@@ -137,18 +125,18 @@ local function doMove(map, robot, move)
 				goto continue
 			end
 
-			toMove:put(afterCell.id, { afterCell, map:get(afterCell.row, afterCell.col) })
+			toMove:put(afterCell, { afterCell, map:get(afterCell.row, afterCell.col) })
 
 			if map:get(afterCell.row, afterCell.col) == LBOX then
 				q:enqueue(afterCell)
 				local rightSide = moveCell(afterCell, E)
 				q:enqueue(rightSide)
-				toMove:put(rightSide.id, { rightSide, map:get(rightSide.row, rightSide.col) })
+				toMove:put(rightSide, { rightSide, map:get(rightSide.row, rightSide.col) })
 			elseif map:get(afterCell.row, afterCell.col) == RBOX then
 				q:enqueue(afterCell)
 				local leftSide = moveCell(afterCell, W)
 				q:enqueue(leftSide)
-				toMove:put(leftSide.id, { leftSide, map:get(leftSide.row, leftSide.col) })
+				toMove:put(leftSide, { leftSide, map:get(leftSide.row, leftSide.col) })
 			end
 
 			::continue::
@@ -172,35 +160,33 @@ end
 
 local function widenMap(map)
 	local wide = {}
-	local robot
 	for _, row in map:rows() do
 		local wideRow = {}
-		for _, tile in pairs(row) do
-			if tile == SPACE then
-				table.insert(wideRow, SPACE)
-				table.insert(wideRow, SPACE)
-			elseif tile == ROBOT then
-				table.insert(wideRow, ROBOT)
-				if robot == nil then
-					robot = Cell(#wide + 1, #wideRow)
-				end
-				table.insert(wideRow, SPACE)
-			elseif tile == BOX then
-				table.insert(wideRow, LBOX)
-				table.insert(wideRow, RBOX)
-			elseif tile == WALL then
-				table.insert(wideRow, WALL)
-				table.insert(wideRow, WALL)
+		for _, cell in pairs(row) do
+			if cell.value == SPACE then
+				table.insert(wideRow, Matrix.Cell(#wide + 1, #wideRow + 1, SPACE))
+				table.insert(wideRow, Matrix.Cell(#wide + 1, #wideRow + 1, SPACE))
+			elseif cell.value == ROBOT then
+				table.insert(wideRow, Matrix.Cell(#wide + 1, #wideRow + 1, ROBOT))
+				table.insert(wideRow, Matrix.Cell(#wide + 1, #wideRow + 1, SPACE))
+			elseif cell.value == BOX then
+				table.insert(wideRow, Matrix.Cell(#wide + 1, #wideRow + 1, LBOX))
+				table.insert(wideRow, Matrix.Cell(#wide + 1, #wideRow + 1, RBOX))
+			elseif cell.value == WALL then
+				table.insert(wideRow, Matrix.Cell(#wide + 1, #wideRow + 1, WALL))
+				table.insert(wideRow, Matrix.Cell(#wide + 1, #wideRow + 1, WALL))
 			end
 		end
 		table.insert(wide, wideRow)
 	end
-	return Matrix.new(wide), robot
+	return Matrix.new(wide)
 end
 
 return function(filepath)
-	local map, movements, robot = readInput(filepath)
-	local wMap, wRobot = widenMap(map)
+	local map, movements = readInput(filepath)
+	local robot = assert(map:find(ROBOT))
+	local wMap = widenMap(map)
+	local wRobot = assert(wMap:find(ROBOT))
 
 	for _, move in pairs(movements) do
 		doMove(map, robot, move)

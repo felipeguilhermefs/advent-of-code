@@ -20,19 +20,13 @@ W.next = { S, N }
 
 local DIR = { N, E, S, W }
 
-local function Cell(row, col)
-	return { row = row, col = col }
-end
-
 local function id(...)
 	return table.concat({ ... }, ":")
 end
 
 local function readInput(filepath)
 	local map = Matrix.fromFile(filepath)
-	local start = assert(map:find(START))
-	local finish = assert(map:find(END))
-	return map, Cell(start.row, start.col), Cell(finish.row, finish.col)
+	return map, assert(map:find(START)), assert(map:find(END))
 end
 
 local function Node(row, col, dir, score, prev)

@@ -17,14 +17,6 @@ W.next = { S, N }
 
 local DIR = { N, E, S, W }
 
-local function id(...)
-	return table.concat({ ... }, ":")
-end
-
-local function Cell(row, col)
-	return { id = id(row, col), row = row, col = col }
-end
-
 local function readInput(filepath)
 	local f = assert(io.open(filepath, "rb"))
 	local content = f:read("*a")
@@ -32,7 +24,7 @@ local function readInput(filepath)
 
 	local blocks = {}
 	for x, y in content:gmatch("(%d+),(%d+)") do
-		table.insert(blocks, Cell(tonumber(y) + 1, tonumber(x) + 1))
+		table.insert(blocks, Matrix.Cell(tonumber(y) + 1, tonumber(x) + 1))
 	end
 	return blocks
 end
@@ -48,12 +40,12 @@ local function bfs(map, start, finish)
 	local toVisit = Queue.new()
 	toVisit:enqueue(start)
 	local distances = HashMap.new()
-	distances:put(start.id, 0)
+	distances:put(tostring(start), 0)
 
 	while not toVisit:empty() do
 		local cur = toVisit:dequeue()
 		for _, dir in pairs(DIR) do
-			local nextCell = Cell(cur.row + dir.row, cur.col + dir.col)
+			local nextCell = Matrix.Cell(cur.row + dir.row, cur.col + dir.col)
 			if not map:contains(nextCell.row, nextCell.col) then
 				goto continue
 			end
@@ -62,14 +54,14 @@ local function bfs(map, start, finish)
 				goto continue
 			end
 
-			if distances:contains(nextCell.id) then
+			if distances:contains(tostring(nextCell)) then
 				goto continue
 			end
 
-			distances:put(nextCell.id, distances:get(cur.id) + 1)
+			distances:put(tostring(nextCell), distances:get(tostring(cur)) + 1)
 
-			if nextCell.id == finish.id then
-				return distances:get(nextCell.id)
+			if nextCell == finish then
+				return distances:get(tostring(nextCell))
 			end
 
 			toVisit:enqueue(nextCell)
@@ -107,7 +99,7 @@ return function(filepath)
 	local blocks = readInput(filepath)
 	putTiles(map, blocks, 1, 1024, BLOCK)
 
-	local start, finish = Cell(1, 1), Cell(size, size)
+	local start, finish = Matrix.Cell(1, 1), Matrix.Cell(size, size)
 
 	return bfs(map, start, finish), lastPossible(map, blocks, start, finish)
 end

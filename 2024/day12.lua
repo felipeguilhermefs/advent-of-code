@@ -19,8 +19,8 @@ SW.outer = { S, W }
 local DIRECTIONS = { N, E, S, W }
 local OUTER_DIRECTIONS = {NE, NW, SE, SW}
 
-local function id(row, col)
-	return string.format("%d:%d", row, col)
+local function id(...)
+	return table.concat({ ... }, ":")
 end
 
 local function Node(row, col, dir)
@@ -65,14 +65,14 @@ local function countCorners(map, row, col, neighborsDir)
 	return corners
 end
 
-local function determineRegions(map, row, col)
-	local plant = map:get(row, col)
+local function determineRegions(map, cell)
+	local plant = cell.value
 	local area = Set.new()
 	local perimeter = 0
 	local corners = 0
 
 	local toMap = Queue.new()
-	toMap:enqueue(Node(row, col))
+	toMap:enqueue(Node(cell.row, cell.col))
 
 	while not toMap:empty() do
 		local cur = toMap:dequeue()
@@ -108,10 +108,10 @@ return function(filepath)
 	local withDiscount = 0
 	local mapped = Set.new()
 	for _, cell in pairs(map) do
-		if mapped:contains(id(cell.row, cell.col)) then
+		if mapped:contains(cell.id) then
 			goto continue
 		end
-		local area, perimeter, corners = determineRegions(map, cell.row, cell.col)
+		local area, perimeter, corners = determineRegions(map, cell)
 
 		total = total + (perimeter * #area)
 		withDiscount = withDiscount + (corners * #area)

@@ -1,8 +1,35 @@
+local function identity(a)
+	return a
+end
+
+local function id(...)
+	return table.concat({ ... }, ":")
+end
+
+local Cell = {}
+Cell.__index = Cell
+
+function Cell.new(row, col, value)
+	return setmetatable({
+		row = row,
+		col = col,
+		value = value,
+	}, Cell)
+end
+
+function Cell.__eq(this, other)
+	return this.row == other.row and this.col == other.col
+end
+
+function Cell.__tostring(this)
+	return id(this.row, this.col)
+end
+
 local Matrix = {}
 Matrix.__index = Matrix
 
-local function identity(a)
-	return a
+function Matrix.Cell(row, col, value)
+	return Cell.new(row, col, value)
 end
 
 function Matrix.fromFile(filepath, mapFn)
@@ -11,7 +38,7 @@ function Matrix.fromFile(filepath, mapFn)
 	for line in io.lines(filepath) do
 		local row = {}
 		for cell in line:gmatch(".") do
-			table.insert(row, mapFn(cell))
+			table.insert(row, Matrix.Cell(#matrix + 1, #row + 1, mapFn(cell)))
 		end
 		table.insert(matrix, row)
 	end
@@ -23,7 +50,7 @@ function Matrix.fill(size, value)
 	for _ = 1, size do
 		local row = {}
 		for _ = 1, size do
-			table.insert(row, value)
+			table.insert(row, Matrix.Cell(#m + 1, #row + 1, value))
 		end
 		table.insert(m, row)
 	end
@@ -56,7 +83,7 @@ end
 
 function Matrix:get(row, col)
 	if self:contains(row, col) then
-		return self._m[row][col]
+		return self._m[row][col].value
 	end
 end
 
@@ -66,7 +93,7 @@ end
 
 function Matrix:put(row, col, value)
 	if value ~= nil and self:contains(row, col) then
-		self._m[row][col] = value
+		self._m[row][col].value = value
 	end
 end
 
@@ -87,7 +114,7 @@ function Matrix:__pairs()
 		end
 
 		index = index + 1
-		local value = { row = row, col = col, value = self._m[row][col] }
+		local value = self._m[row][col]
 		col = col + 1
 		return index, value
 	end,

@@ -18,27 +18,17 @@ end
 
 local POSITIONS_POOL = HashMap.new()
 
-local Position = {}
-Position.__index = Position
-
-function Position.new(row, col)
-	return POSITIONS_POOL:compute(id(row, col), function(key)
-		return setmetatable({ id = key, row = row, col = col }, Position)
+local function new(row, col)
+	return POSITIONS_POOL:compute(id(row, col), function()
+		return Matrix.Cell(row, col)
 	end)
-end
-
-function Position.__eq(this, other)
-	return (this.row == other.row) and (this.col == other.col)
-end
-function Position.__tostring(this)
-	return this.id
 end
 
 local function readInput(filepath)
 	local map = Matrix.fromFile(filepath)
 	local start = assert(map:find(START))
 	local finish = assert(map:find(END))
-	return map, Position.new(start.row, start.col), Position.new(finish.row, finish.col)
+	return map, new(start.row, start.col), new(finish.row, finish.col)
 end
 
 local function normalLap(map, start, finish)
@@ -51,7 +41,7 @@ local function normalLap(map, start, finish)
 	positionAtTime:put(curTime, start)
 	while curPosition ~= finish do
 		for _, dir in pairs(DIR) do
-			local nextPosition = Position.new(curPosition.row + dir.row, curPosition.col + dir.col)
+			local nextPosition = new(curPosition.row + dir.row, curPosition.col + dir.col)
 			if map:get(nextPosition.row, nextPosition.col) ~= BLOCK and timeAtPosition:get(nextPosition) == nil then
 				local nextTime = curTime + 1
 				timeAtPosition:put(nextPosition, nextTime)
