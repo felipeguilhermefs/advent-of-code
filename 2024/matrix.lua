@@ -2,10 +2,6 @@ local function identity(a)
 	return a
 end
 
-local function id(...)
-	return table.concat({ ... }, ":")
-end
-
 local Cell = {}
 Cell.__index = Cell
 
@@ -22,10 +18,19 @@ function Cell.__eq(this, other)
 end
 
 function Cell.__tostring(this)
-	return id(this.row, this.col)
+	return string.format("%s:%s", this.row, this.col)
 end
 
-local Matrix = {}
+local Matrix = {
+	N = { row = -1, col = 0 },
+	NE = { row = -1, col = 1 },
+	E = { row = 0, col = 1 },
+	SE = { row = 1, col = 1 },
+	S = { row = 1, col = 0 },
+	SW = { row = 1, col = -1 },
+	W = { row = 0, col = -1 },
+	NW = { row = -1, col = -1 },
+}
 Matrix.__index = Matrix
 
 function Matrix.Cell(row, col, value)

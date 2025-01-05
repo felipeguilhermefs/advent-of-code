@@ -2,16 +2,11 @@ local HashMap = require("ff.collections.hashmap")
 local Queue = require("ff.collections.queue")
 local Matrix = require("matrix")
 
-local N = { row = -1, col = 0 }
-local E = { row = 0, col = 1 }
-local S = { row = 1, col = 0 }
-local W = { row = 0, col = -1 }
-
 local DIR = {
-	["^"] = N,
-	[">"] = E,
-	["v"] = S,
-	["<"] = W,
+	["^"] = Matrix.N,
+	[">"] = Matrix.E,
+	["v"] = Matrix.S,
+	["<"] = Matrix.W,
 }
 
 local ROBOT = "@"
@@ -89,7 +84,7 @@ local function doMove(map, robot, move)
 		return
 	end
 
-	if dir == E or dir == W then
+	if dir == Matrix.E or dir == Matrix.W then
 		local afterCell = nextCell
 
 		while map:get(afterCell.row, afterCell.col) ~= SPACE and map:get(afterCell.row, afterCell.col) ~= WALL do
@@ -129,12 +124,12 @@ local function doMove(map, robot, move)
 
 			if map:get(afterCell.row, afterCell.col) == LBOX then
 				q:enqueue(afterCell)
-				local rightSide = moveCell(afterCell, E)
+				local rightSide = moveCell(afterCell, Matrix.E)
 				q:enqueue(rightSide)
 				toMove:put(rightSide, { rightSide, map:get(rightSide.row, rightSide.col) })
 			elseif map:get(afterCell.row, afterCell.col) == RBOX then
 				q:enqueue(afterCell)
-				local leftSide = moveCell(afterCell, W)
+				local leftSide = moveCell(afterCell, Matrix.W)
 				q:enqueue(leftSide)
 				toMove:put(leftSide, { leftSide, map:get(leftSide.row, leftSide.col) })
 			end

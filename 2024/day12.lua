@@ -2,22 +2,15 @@ local Set = require("ff.collections.set")
 local Queue = require("ff.collections.queue")
 local Matrix = require("matrix")
 
-local N = { -1, 0 }
-local NE = { -1, 1 }
-local E = { 0, 1 }
-local SE = { 1, 1 }
-local S = { 1, 0 }
-local SW = { 1, -1 }
-local W = { 0, -1 }
-local NW = { -1, -1 }
+local OUTER = {
+	[Matrix.NE] = { Matrix.N, Matrix.E },
+	[Matrix.NW] = { Matrix.N, Matrix.W },
+	[Matrix.SE] = { Matrix.S, Matrix.E },
+	[Matrix.SW] = { Matrix.S, Matrix.W },
+}
 
-NE.outer = { N, E }
-NW.outer = { N, W }
-SE.outer = { S, E }
-SW.outer = { S, W }
-
-local DIRECTIONS = { N, E, S, W }
-local OUTER_DIRECTIONS = {NE, NW, SE, SW}
+local DIRECTIONS = { Matrix.N, Matrix.E, Matrix.S, Matrix.W }
+local OUTER_DIRECTIONS = { Matrix.NE, Matrix.NW, Matrix.SE, Matrix.SW }
 
 local function id(...)
 	return table.concat({ ... }, ":")
@@ -29,10 +22,10 @@ end
 
 local function isOuterCorner(map, row, col, dir, neighborsDir)
 	local plant = map:get(row, col)
-	local oRow, oCol = row + dir[1], col + dir[2]
+	local oRow, oCol = row + dir.row, col + dir.col
 
 	if map:contains(oRow, oCol) and map:get(oRow, oCol) ~= plant then
-		return neighborsDir:contains(dir.outer[1], dir.outer[2])
+		return neighborsDir:contains(OUTER[dir][1], OUTER[dir][2])
 	end
 	return false
 
@@ -50,7 +43,7 @@ local function countCorners(map, row, col, neighborsDir)
 	local corners = 0
 
 	if #neighborsDir == 2 then
-		if not neighborsDir:contains(N, S) and not neighborsDir:contains(E, W) then
+		if not neighborsDir:contains(Matrix.N, Matrix.S) and not neighborsDir:contains(Matrix.E, Matrix.W) then
 			-- perpendicular
 			corners = 1
 		end
@@ -82,7 +75,7 @@ local function determineRegions(map, cell)
 
 		local neighborsDir = Set.new()
 		for _, dir in pairs(DIRECTIONS) do
-			local nRow, nCol = cur.row + dir[1], cur.col + dir[2]
+			local nRow, nCol = cur.row + dir.row, cur.col + dir.col
 			if map:get(nRow, nCol) == plant then
 				local neighbor = Node(nRow, nCol, dir)
 				if not area:contains(neighbor.id) then
@@ -108,7 +101,7 @@ return function(filepath)
 	local withDiscount = 0
 	local mapped = Set.new()
 	for _, cell in pairs(map) do
-		if mapped:contains(cell.id) then
+		if mapped:contains(tostring(cell)) then
 			goto continue
 		end
 		local area, perimeter, corners = determineRegions(map, cell)

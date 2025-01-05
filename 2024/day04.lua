@@ -1,20 +1,13 @@
 local Matrix = require("matrix")
 
-local N = { -1, 0 }
-local NE = { -1, 1 }
-local E = { 0, 1 }
-local SE = { 1, 1 }
-local S = { 1, 0 }
-local SW = { 1, -1 }
-local W = { 0, -1 }
-local NW = { -1, -1 }
-
-local function isXMAS(map, row, col, dir)
+local function isXMAS(map, cell, dir)
 	-- try out the letters in sequence in a given direction
+	local row = cell.row
+	local col = cell.col
 	local mas = { "M", "A", "S" }
 	for _, letter in pairs(mas) do
-		row = row + dir[1]
-		col = col + dir[2]
+		row = row + dir.row
+		col = col + dir.col
 
 		if map:get(row, col) ~= letter then
 			return false
@@ -25,7 +18,7 @@ end
 
 local function countXMAS(map)
 	-- find X and then try MAS in every direction
-	local directions = { N, NE, NW, W, E, S, SE, SW }
+	local directions = { Matrix.N, Matrix.NE, Matrix.NW, Matrix.W, Matrix.E, Matrix.S, Matrix.SE, Matrix.SW }
 	local sum = 0
 
 	for _, cell in pairs(map) do
@@ -34,7 +27,7 @@ local function countXMAS(map)
 		end
 
 		for _, dir in pairs(directions) do
-			if isXMAS(map, cell.row, cell.col, dir) then
+			if isXMAS(map, cell, dir) then
 				sum = sum + 1
 			end
 		end
@@ -48,8 +41,8 @@ local function isCrossMAS(map, cell, dir)
 	-- look for M in a given position, and S in the cross opposite end
 	local ms = { ["M"] = 1, ["S"] = -1 }
 	for letter, axis in pairs(ms) do
-		local lRow = cell.row + dir[1] * axis
-		local lCol = cell.col + dir[2] * axis
+		local lRow = cell.row + dir.row * axis
+		local lCol = cell.col + dir.col * axis
 		if map:get(lRow, lCol) ~= letter then
 			return false
 		end
@@ -60,7 +53,7 @@ end
 
 local function countCrossMAS(map)
 	-- try out diagonal positions for the X
-	local directions = { NE, NW, SE, SW }
+	local directions = { Matrix.NE, Matrix.NW, Matrix.SE, Matrix.SW }
 	local sum = 0
 
 	for _, cell in pairs(map) do

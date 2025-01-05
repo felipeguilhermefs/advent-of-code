@@ -5,12 +5,7 @@ local BLOCK = "#"
 local START = "S"
 local END = "E"
 
-local N = { row = -1, col = 0 }
-local E = { row = 0, col = 1 }
-local S = { row = 1, col = 0 }
-local W = { row = 0, col = -1 }
-
-local DIR = { W, E, N, S }
+local DIR = { Matrix.W, Matrix.E, Matrix.N, Matrix.S }
 
 local function id(...)
 	return table.concat({ ... }, ":")

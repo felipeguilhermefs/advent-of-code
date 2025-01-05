@@ -1,15 +1,12 @@
 local Set = require("ff.collections.set")
 local Matrix = require("matrix")
 
-local N = { -1, 0 }
-local E = { 0, 1 }
-local S = { 1, 0 }
-local W = { 0, -1 }
-
-N.next = E
-E.next = S
-S.next = W
-W.next = N
+local TURN = {
+	[Matrix.N] = Matrix.E,
+	[Matrix.E] = Matrix.S,
+	[Matrix.S] = Matrix.W,
+	[Matrix.W] = Matrix.N,
+}
 
 local BLOCK = "#"
 local VISITED = "X"
@@ -17,7 +14,7 @@ local VISITED = "X"
 local function readInput(filepath)
 	local map = Matrix.fromFile(filepath)
 	local cell = assert(map:find("^"))
-	local guard = { row = cell.row, col = cell.col, dir = N }
+	local guard = { row = cell.row, col = cell.col, dir = Matrix.N }
 	return map, guard
 end
 
@@ -25,10 +22,10 @@ local function markPath(map, guard)
 	local distance = 0
 	local row, col, dir = guard.row, guard.col, guard.dir
 	while map:contains(row, col) do
-		local nextRow, nextCol = row + dir[1], col + dir[2]
+		local nextRow, nextCol = row + dir.row, col + dir.col
 
 		if map:get(nextRow, nextCol) == BLOCK then
-			dir = dir.next
+			dir = TURN[dir]
 		end
 
 		if map:get(row, col) ~= VISITED then
@@ -36,8 +33,8 @@ local function markPath(map, guard)
 			distance = distance + 1
 		end
 
-		row = row + dir[1]
-		col = col + dir[2]
+		row = row + dir.row
+		col = col + dir.col
 	end
 
 	return distance
@@ -47,19 +44,19 @@ local function isLoop(map, guard)
 	local path = Set.new()
 	local row, col, dir = guard.row, guard.col, guard.dir
 	while map:contains(row, col) do
-		local key = string.format("%d:%d:%d:%d", row, col, dir[1], dir[2])
+		local key = string.format("%d:%d:%d:%d", row, col, dir.row, dir.col)
 		if path:contains(key) then
 			return true
 		end
 
-		local nextRow, nextCol = row + dir[1], col + dir[2]
+		local nextRow, nextCol = row + dir.row, col + dir.col
 
 		if map:get(nextRow, nextCol) == BLOCK then
-			dir = dir.next
+			dir = TURN[dir]
 		else
 			path:add(key)
-			row = row + dir[1]
-			col = col + dir[2]
+			row = row + dir.row
+			col = col + dir.col
 		end
 	end
 

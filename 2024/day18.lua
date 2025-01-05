@@ -5,17 +5,7 @@ local Matrix = require("matrix")
 local SPACE = "."
 local BLOCK = "#"
 
-local N = { row = -1, col = 0 }
-local E = { row = 0, col = 1 }
-local S = { row = 1, col = 0 }
-local W = { row = 0, col = -1 }
-
-N.next = { W, E }
-E.next = { N, S }
-S.next = { E, W }
-W.next = { S, N }
-
-local DIR = { N, E, S, W }
+local DIR = { Matrix.N, Matrix.E, Matrix.S, Matrix.W }
 
 local function readInput(filepath)
 	local f = assert(io.open(filepath, "rb"))

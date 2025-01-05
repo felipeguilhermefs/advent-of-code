@@ -1,12 +1,7 @@
 local Set = require("ff.collections.set")
 local Matrix = require("matrix")
 
-local N = { -1, 0 }
-local E = { 0, 1 }
-local S = { 1, 0 }
-local W = { 0, -1 }
-
-local DIRECTIONS = { N, E, S, W }
+local DIRECTIONS = { Matrix.N, Matrix.E, Matrix.S, Matrix.W }
 
 local function walkTrails(map, row, col, height, peaks)
 	height = height or 0
@@ -23,7 +18,7 @@ local function walkTrails(map, row, col, height, peaks)
 
 	local trails = 0
 	for _, dir in pairs(DIRECTIONS) do
-		local _, count = walkTrails(map, row + dir[1], col + dir[2], height + 1, peaks)
+		local _, count = walkTrails(map, row + dir.row, col + dir.col, height + 1, peaks)
 		trails = trails + count
 	end
 

@@ -8,17 +8,14 @@ local START = "S"
 local END = "E"
 local WALL = "#"
 
-local N = { row = -1, col = 0 }
-local E = { row = 0, col = 1 }
-local S = { row = 1, col = 0 }
-local W = { row = 0, col = -1 }
+local NEXT = {
+	[Matrix.N] = { Matrix.W, Matrix.E },
+	[Matrix.E] = { Matrix.N, Matrix.S },
+	[Matrix.S] = { Matrix.E, Matrix.W },
+	[Matrix.W] = { Matrix.S, Matrix.N },
+}
 
-N.next = { W, E }
-E.next = { N, S }
-S.next = { E, W }
-W.next = { S, N }
-
-local DIR = { N, E, S, W }
+local DIR = { Matrix.N, Matrix.E, Matrix.S, Matrix.W }
 
 local function id(...)
 	return table.concat({ ... }, ":")
@@ -55,7 +52,7 @@ end
 return function(filepath)
 	local map, start, finish = readInput(filepath)
 
-	local initialState = Node(start.row, start.col, E, 0)
+	local initialState = Node(start.row, start.col, Matrix.E, 0)
 	local pq = Heap.new(minScore)
 	pq:push(initialState)
 
@@ -94,7 +91,7 @@ return function(filepath)
 			pq:push(Node(nextRow, nextCol, cur.dir, cur.score + 1, cur))
 		end
 
-		for _, nextDir in pairs(cur.dir.next) do
+		for _, nextDir in pairs(NEXT[cur.dir]) do
 			pq:push(Node(cur.row, cur.col, nextDir, cur.score + 1000, cur))
 		end
 
