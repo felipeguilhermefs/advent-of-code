@@ -2,14 +2,12 @@ local Matrix = require("matrix")
 
 local function isXMAS(map, cell, dir)
 	-- try out the letters in sequence in a given direction
-	local row = cell.row
-	local col = cell.col
 	local mas = { "M", "A", "S" }
+	local nextCell = cell
 	for _, letter in pairs(mas) do
-		row = row + dir.row
-		col = col + dir.col
+		nextCell = map:next(nextCell, dir)
 
-		if map:get(row, col) ~= letter then
+		if nextCell == nil or nextCell.value ~= letter then
 			return false
 		end
 	end
@@ -38,12 +36,10 @@ local function countXMAS(map)
 end
 
 local function isCrossMAS(map, cell, dir)
-	-- look for M in a given position, and S in the cross opposite end
-	local ms = { ["M"] = 1, ["S"] = -1 }
-	for letter, axis in pairs(ms) do
-		local lRow = cell.row + dir.row * axis
-		local lCol = cell.col + dir.col * axis
-		if map:get(lRow, lCol) ~= letter then
+	local ms = { "M", "S" }
+	for axis, letter in pairs(ms) do
+		local nextCell = map:next(cell, dir[axis])
+		if nextCell == nil or nextCell.value ~= letter then
 			return false
 		end
 	end
@@ -53,7 +49,12 @@ end
 
 local function countCrossMAS(map)
 	-- try out diagonal positions for the X
-	local directions = { Matrix.NE, Matrix.NW, Matrix.SE, Matrix.SW }
+	local directions = {
+		{ Matrix.NE, Matrix.SW },
+		{ Matrix.NW, Matrix.SE },
+		{ Matrix.SE, Matrix.NW },
+		{ Matrix.SW, Matrix.NE },
+	}
 	local sum = 0
 
 	for _, cell in pairs(map) do

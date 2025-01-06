@@ -35,12 +35,12 @@ local function bfs(map, start, finish)
 	while not toVisit:empty() do
 		local cur = toVisit:dequeue()
 		for _, dir in pairs(DIR) do
-			local nextCell = Matrix.Cell(cur.row + dir.row, cur.col + dir.col)
-			if not map:contains(nextCell.row, nextCell.col) then
+			local nextCell = map:next(cur, dir)
+			if nextCell == nil then
 				goto continue
 			end
 
-			if map:get(nextCell.row, nextCell.col) == BLOCK then
+			if nextCell.value == BLOCK then
 				goto continue
 			end
 

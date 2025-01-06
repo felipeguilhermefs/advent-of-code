@@ -26,27 +26,22 @@ local function groupAntennas(map)
 	return antennas
 end
 
-local function newAntinode(a, b)
-	return Matrix.Cell(mirror(a.row, b.row), mirror(a.col, b.col))
-end
-
-local function add(antinodes, toAdd)
-	for _, antinode in pairs(toAdd) do
-		local key = string.format("%d:%d", antinode.row, antinode.col)
-		antinodes:add(key)
-	end
+local function antinodePos(a, b)
+	return mirror(a.row, b.row), mirror(a.col, b.col)
 end
 
 local function genAntinodes(map, a, b, frequency)
 	local antinodes = Array.new()
 
-	local antinodeA = newAntinode(a, b)
-	if map:get(antinodeA.row, antinodeA.col) and map:get(antinodeA.row, antinodeA.col) ~= frequency then
+	local aRow, aCol = antinodePos(a, b)
+	local antinodeA = map:get(aRow, aCol)
+	if antinodeA and antinodeA.value ~= frequency then
 		antinodes:insert(antinodeA)
 	end
 
-	local antinodeB = newAntinode(b, a)
-	if map:contains(antinodeB.row, antinodeB.col) and map:get(antinodeB.row, antinodeB.col) ~= frequency then
+	local bRow, bCol = antinodePos(b, a)
+	local antinodeB = map:get(bRow, bCol)
+	if antinodeB and antinodeB.value ~= frequency then
 		antinodes:insert(antinodeB)
 	end
 
@@ -54,14 +49,16 @@ local function genAntinodes(map, a, b, frequency)
 end
 
 local function resonate(map, antinodes, a, b)
-	local antinode = newAntinode(a, b)
-	while map:contains(antinode.row, antinode.col) do
+	local row, col = antinodePos(a, b)
+	local antinode = map:get(row, col)
+	while antinode do
 		antinodes:insert(antinode)
 
 		b = a
 		a = antinode
 
-		antinode = newAntinode(a, b)
+		row, col = antinodePos(a, b)
+		antinode = map:get(row, col)
 	end
 end
 
@@ -86,8 +83,8 @@ return function(filepath)
 				local a = antennas:get(i)
 				local b = antennas:get(j)
 
-				add(antinodes, genAntinodes(map, a, b, frequency))
-				add(antinodesWithResonance, genAntinodesWithResonance(map, a, b))
+				antinodes = antinodes .. genAntinodes(map, a, b, frequency)
+				antinodesWithResonance = antinodesWithResonance .. genAntinodesWithResonance(map, a, b)
 			end
 		end
 	end

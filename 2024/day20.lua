@@ -7,23 +7,9 @@ local END = "E"
 
 local DIR = { Matrix.W, Matrix.E, Matrix.N, Matrix.S }
 
-local function id(...)
-	return table.concat({ ... }, ":")
-end
-
-local POSITIONS_POOL = HashMap.new()
-
-local function new(row, col)
-	return POSITIONS_POOL:compute(id(row, col), function()
-		return Matrix.Cell(row, col)
-	end)
-end
-
 local function readInput(filepath)
 	local map = Matrix.fromFile(filepath)
-	local start = assert(map:find(START))
-	local finish = assert(map:find(END))
-	return map, new(start.row, start.col), new(finish.row, finish.col)
+	return map, assert(map:find(START)), assert(map:find(END))
 end
 
 local function normalLap(map, start, finish)
@@ -36,8 +22,8 @@ local function normalLap(map, start, finish)
 	positionAtTime:put(curTime, start)
 	while curPosition ~= finish do
 		for _, dir in pairs(DIR) do
-			local nextPosition = new(curPosition.row + dir.row, curPosition.col + dir.col)
-			if map:get(nextPosition.row, nextPosition.col) ~= BLOCK and timeAtPosition:get(nextPosition) == nil then
+			local nextPosition = map:next(curPosition, dir)
+			if (nextPosition == nil or nextPosition.value ~= BLOCK) and timeAtPosition:get(nextPosition) == nil then
 				local nextTime = curTime + 1
 				timeAtPosition:put(nextPosition, nextTime)
 				positionAtTime:put(nextTime, nextPosition)

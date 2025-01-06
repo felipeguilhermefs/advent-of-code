@@ -16,14 +16,6 @@ local RBOX = "]"
 local SPACE = "."
 local WALL = "#"
 
-local function moveCell(cell, dir)
-	return Matrix.Cell(cell.row + dir.row, cell.col + dir.col)
-end
-
-local function copyCell(from, to)
-	to.row, to.col = from.row, from.col
-end
-
 local function readInput(filepath)
 	local map = {}
 	local movements = {}
@@ -56,82 +48,82 @@ end
 
 local function doMove(map, robot, move)
 	local dir = DIR[move]
-	local nextCell = moveCell(robot, dir)
+	local nextCell = map:next(robot, dir)
 
-	if map:get(nextCell.row, nextCell.col) == WALL then
-		return
+	if nextCell.value == WALL then
+		return robot
 	end
 
-	if map:get(nextCell.row, nextCell.col) == SPACE then
-		map:put(robot.row, robot.col, SPACE)
-		map:put(nextCell.row, nextCell.col, ROBOT)
-		copyCell(nextCell, robot)
-		return
+	if nextCell.value == SPACE then
+		robot.value = SPACE
+		nextCell.value = ROBOT
+		return nextCell
 	end
 
-	if map:get(nextCell.row, nextCell.col) == BOX then
-		local afterCell = moveCell(nextCell, dir)
-		while map:get(afterCell.row, afterCell.col) == BOX do
-			afterCell = moveCell(afterCell, dir)
+	if nextCell.value == BOX then
+		local afterCell = map:next(nextCell, dir)
+		while afterCell.value == BOX do
+			afterCell = map:next(afterCell, dir)
 		end
 
-		if map:get(afterCell.row, afterCell.col) == SPACE then
-			map:put(afterCell.row, afterCell.col, BOX)
-			map:put(robot.row, robot.col, SPACE)
-			map:put(nextCell.row, nextCell.col, ROBOT)
-			copyCell(nextCell, robot)
+		if afterCell.value == SPACE then
+			afterCell.value = BOX
+			robot.value = SPACE
+			nextCell.value = ROBOT
+			return nextCell
 		end
-		return
+		return robot
 	end
 
 	if dir == Matrix.E or dir == Matrix.W then
 		local afterCell = nextCell
 
-		while map:get(afterCell.row, afterCell.col) ~= SPACE and map:get(afterCell.row, afterCell.col) ~= WALL do
-			afterCell = moveCell(afterCell, dir)
+		while afterCell.value ~= SPACE and afterCell.value ~= WALL do
+			afterCell = map:next(afterCell, dir)
 		end
 
-		if map:get(afterCell.row, afterCell.col) == WALL then
-			return
+		if afterCell.value == WALL then
+			return robot
 		end
 
 		while afterCell.col ~= robot.col - dir.col do
-			map:put(afterCell.row, afterCell.col, map:get(afterCell.row, afterCell.col - dir.col))
-			afterCell.col = afterCell.col - dir.col
+			local prevCell = map:prev(afterCell, dir)
+			afterCell.value = prevCell.value
+			afterCell = prevCell
 		end
-		map:put(robot.row, robot.col, SPACE)
-		copyCell(nextCell, robot)
+		robot.value = SPACE
+		return nextCell
 	else
 		local q = Queue.new()
 		q:enqueue(robot)
 		local toMove = HashMap.new()
-		toMove:put(nextCell, { nextCell, map:get(nextCell.row, nextCell.col) })
+		toMove:put(nextCell, { nextCell, nextCell.value })
 
 		while not q:empty() do
 			local cur = q:dequeue()
-			local afterCell = moveCell(cur, dir)
+			local afterCell = map:next(cur, dir)
 
-			if map:get(afterCell.row, afterCell.col) == WALL then
+			if afterCell.value == WALL then
 				toMove:clear()
 				break
 			end
 
-			if map:get(afterCell.row, afterCell.col) == SPACE then
+			if afterCell.value == SPACE then
 				goto continue
 			end
 
-			toMove:put(afterCell, { afterCell, map:get(afterCell.row, afterCell.col) })
+			toMove:put(afterCell, { afterCell, afterCell.value })
 
-			if map:get(afterCell.row, afterCell.col) == LBOX then
+			if afterCell.value == LBOX then
 				q:enqueue(afterCell)
-				local rightSide = moveCell(afterCell, Matrix.E)
+				local rightSide = map:next(afterCell, Matrix.E)
 				q:enqueue(rightSide)
-				toMove:put(rightSide, { rightSide, map:get(rightSide.row, rightSide.col) })
-			elseif map:get(afterCell.row, afterCell.col) == RBOX then
+				toMove:put(rightSide, { rightSide, rightSide.value })
+			elseif afterCell.value == RBOX then
 				q:enqueue(afterCell)
-				local leftSide = moveCell(afterCell, Matrix.W)
+				local leftSide = map:next(afterCell, Matrix.W)
 				q:enqueue(leftSide)
-				toMove:put(leftSide, { leftSide, map:get(leftSide.row, leftSide.col) })
+				toMove:put(leftSide, { leftSide, leftSide.value })
 			end
 
 			::continue::
@@ -139,18 +131,19 @@ local function doMove(map, robot, move)
 
 		if not toMove:empty() then
 			for _, tile in pairs(toMove) do
-				map:put(tile[1].row, tile[1].col, SPACE)
+				tile[1].value = SPACE
 			end
 			for _, tile in pairs(toMove) do
-				local moved = moveCell(tile[1], dir)
-				map:put(moved.row, moved.col, tile[2])
+				local moved = map:next(tile[1], dir)
+				moved.value = tile[2]
 			end
 
-			map:put(robot.row, robot.col, SPACE)
-			map:put(nextCell.row, nextCell.col, ROBOT)
-			copyCell(nextCell, robot)
+			robot.value = SPACE
+			nextCell.value = ROBOT
+			return nextCell
 		end
 	end
+	return robot
 end
 
 local function widenMap(map)
@@ -184,8 +177,8 @@ return function(filepath)
 	local wRobot = assert(wMap:find(ROBOT))
 
 	for _, move in pairs(movements) do
-		doMove(map, robot, move)
-		doMove(wMap, wRobot, move)
+		robot = doMove(map, robot, move)
+		wRobot = doMove(wMap, wRobot, move)
 	end
 
 	return sumGPS(map), sumGPS(wMap)

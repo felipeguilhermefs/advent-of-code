@@ -12,26 +12,18 @@ local OUTER = {
 local DIRECTIONS = { Matrix.N, Matrix.E, Matrix.S, Matrix.W }
 local OUTER_DIRECTIONS = { Matrix.NE, Matrix.NW, Matrix.SE, Matrix.SW }
 
-local function id(...)
-	return table.concat({ ... }, ":")
-end
+local function isOuterCorner(map, cell, dir, neighborsDir)
+	local plant = cell.value
+	local oCell = map:next(cell, dir)
 
-local function Node(row, col, dir)
-	return { row = row, col = col, id = id(row, col), dir = dir }
-end
-
-local function isOuterCorner(map, row, col, dir, neighborsDir)
-	local plant = map:get(row, col)
-	local oRow, oCol = row + dir.row, col + dir.col
-
-	if map:contains(oRow, oCol) and map:get(oRow, oCol) ~= plant then
+	if oCell and oCell.value ~= plant then
 		return neighborsDir:contains(OUTER[dir][1], OUTER[dir][2])
 	end
 	return false
 
 end
 
-local function countCorners(map, row, col, neighborsDir)
+local function countCorners(map, cell, neighborsDir)
 	if #neighborsDir == 0 then
 		return 4
 	end
@@ -50,7 +42,7 @@ local function countCorners(map, row, col, neighborsDir)
 	end
 
 	for _, dir in pairs(OUTER_DIRECTIONS) do
-		if isOuterCorner(map, row, col, dir, neighborsDir) then
+		if isOuterCorner(map, cell, dir, neighborsDir) then
 			corners = corners + 1
 		end
 	end
@@ -65,28 +57,27 @@ local function determineRegions(map, cell)
 	local corners = 0
 
 	local toMap = Queue.new()
-	toMap:enqueue(Node(cell.row, cell.col))
+	toMap:enqueue(cell)
 
 	while not toMap:empty() do
 		local cur = toMap:dequeue()
-		if not area:add(cur.id) then
+		if not area:add(cur) then
 			goto continue
 		end
 
 		local neighborsDir = Set.new()
 		for _, dir in pairs(DIRECTIONS) do
-			local nRow, nCol = cur.row + dir.row, cur.col + dir.col
-			if map:get(nRow, nCol) == plant then
-				local neighbor = Node(nRow, nCol, dir)
-				if not area:contains(neighbor.id) then
-					toMap:enqueue(neighbor)
+			local nextCell = map:next(cur, dir)
+			if nextCell and nextCell.value == plant then
+				if not area:contains(nextCell) then
+					toMap:enqueue(nextCell)
 				end
 				neighborsDir:add(dir)
 			end
 		end
 
 		perimeter = perimeter + (4 - #neighborsDir)
-		corners = corners + countCorners(map, cur.row, cur.col, neighborsDir)
+		corners = corners + countCorners(map, cur, neighborsDir)
 
 		::continue::
 	end
@@ -101,7 +92,7 @@ return function(filepath)
 	local withDiscount = 0
 	local mapped = Set.new()
 	for _, cell in pairs(map) do
-		if mapped:contains(tostring(cell)) then
+		if mapped:contains(cell) then
 			goto continue
 		end
 		local area, perimeter, corners = determineRegions(map, cell)

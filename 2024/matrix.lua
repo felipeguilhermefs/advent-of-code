@@ -88,12 +88,24 @@ end
 
 function Matrix:get(row, col)
 	if self:contains(row, col) then
-		return self._m[row][col].value
+		return self._m[row][col]
 	end
 end
 
-function Matrix:rows()
-	return pairs(self._m)
+function Matrix:next(from, dir)
+	local nRow = from.row + dir.row
+	local nCol = from.col + dir.col
+	if self:contains(nRow, nCol) then
+		return self._m[nRow][nCol]
+	end
+end
+
+function Matrix:prev(from, dir)
+	local pRow = from.row - dir.row
+	local pCol = from.col - dir.col
+	if self:contains(pRow, pCol) then
+		return self._m[pRow][pCol]
+	end
 end
 
 function Matrix:put(row, col, value)
@@ -125,6 +137,10 @@ function Matrix:__pairs()
 	end,
 		self,
 		nil
+end
+
+function Matrix:rows()
+	return pairs(self._m)
 end
 
 return Matrix

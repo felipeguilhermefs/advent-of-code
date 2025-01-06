@@ -26,11 +26,10 @@ local function readInput(filepath)
 	return map, assert(map:find(START)), assert(map:find(END))
 end
 
-local function Node(row, col, dir, score, prev)
+local function Node(cell, dir, score, prev)
 	return {
-		id = id(row, col, dir.row, dir.col),
-		row = row,
-		col = col,
+		id = id(cell.row, cell.col, dir.row, dir.col),
+		cell = cell,
 		dir = dir,
 		score = score,
 		prev = prev,
@@ -52,7 +51,7 @@ end
 return function(filepath)
 	local map, start, finish = readInput(filepath)
 
-	local initialState = Node(start.row, start.col, Matrix.E, 0)
+	local initialState = Node(start, Matrix.E, 0)
 	local pq = Heap.new(minScore)
 	pq:push(initialState)
 
@@ -81,18 +80,18 @@ return function(filepath)
 			prev:put(cur.id, { cur.prev })
 		end
 
-		if cur.row == finish.row and cur.col == finish.col then
+		if cur.cell == finish then
 			winningScore = cur.score
 			break
 		end
 
-		local nextRow, nextCol = cur.row + cur.dir.row, cur.col + cur.dir.col
-		if map:get(nextRow, nextCol) ~= WALL then
-			pq:push(Node(nextRow, nextCol, cur.dir, cur.score + 1, cur))
+		local nextCell = map:next(cur.cell, cur.dir)
+		if nextCell.value ~= WALL then
+			pq:push(Node(nextCell, cur.dir, cur.score + 1, cur))
 		end
 
 		for _, nextDir in pairs(NEXT[cur.dir]) do
-			pq:push(Node(cur.row, cur.col, nextDir, cur.score + 1000, cur))
+			pq:push(Node(cur.cell, nextDir, cur.score + 1000, cur))
 		end
 
 		::continue::
@@ -106,7 +105,7 @@ return function(filepath)
 
 	local tiles = Set.new()
 	for _, node in pairs(nodes) do
-		tiles:add(id(node.row, node.col))
+		tiles:add(node.cell)
 
 		nodes = nodes .. prev:get(node.id)
 	end

@@ -3,22 +3,22 @@ local Matrix = require("matrix")
 
 local DIRECTIONS = { Matrix.N, Matrix.E, Matrix.S, Matrix.W }
 
-local function walkTrails(map, row, col, height, peaks)
+local function walkTrails(map, cell, height, peaks)
 	height = height or 0
 	peaks = peaks or Set.new()
 
-	if map:get(row, col) ~= height then
+	if cell == nil or cell.value ~= height then
 		return peaks, 0
 	end
 
 	if height == 9 then
-		peaks:add(string.format("%d:%d", row, col))
+		peaks:add(cell)
 		return peaks, 1
 	end
 
 	local trails = 0
 	for _, dir in pairs(DIRECTIONS) do
-		local _, count = walkTrails(map, row + dir.row, col + dir.col, height + 1, peaks)
+		local _, count = walkTrails(map, map:next(cell, dir), height + 1, peaks)
 		trails = trails + count
 	end
 
@@ -32,7 +32,7 @@ return function(filepath)
 
 	for _, cell in pairs(map) do
 		if cell.value == 0 then
-			local peaks, count = walkTrails(map, cell.row, cell.col)
+			local peaks, count = walkTrails(map, cell)
 			score = score + #peaks
 			trails = trails + count
 		end
