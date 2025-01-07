@@ -1,5 +1,5 @@
 local HashMap = require("ff.collections.hashmap")
-local Matrix = require("matrix")
+local Matrix = require("ff.aoc.matrix")
 
 local BLOCK = "#"
 local START = "S"

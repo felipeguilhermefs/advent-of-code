@@ -1,6 +1,6 @@
 local Set = require("ff.collections.set")
 local Queue = require("ff.collections.queue")
-local Matrix = require("matrix")
+local Matrix = require("ff.aoc.matrix")
 
 local OUTER = {
 	[Matrix.NE] = { Matrix.N, Matrix.E },

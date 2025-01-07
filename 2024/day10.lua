@@ -1,5 +1,5 @@
 local Set = require("ff.collections.set")
-local Matrix = require("matrix")
+local Matrix = require("ff.aoc.matrix")
 
 local DIRECTIONS = { Matrix.N, Matrix.E, Matrix.S, Matrix.W }
 

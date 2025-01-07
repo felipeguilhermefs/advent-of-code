@@ -1,7 +1,7 @@
 local Array = require("ff.collections.array")
 local HashMap = require("ff.collections.hashmap")
 local Set = require("ff.collections.set")
-local Matrix = require("matrix")
+local Matrix = require("ff.aoc.matrix")
 
 local function mirror(a, b)
 	return a - (b - a)

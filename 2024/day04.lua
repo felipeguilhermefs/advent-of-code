@@ -1,4 +1,4 @@
-local Matrix = require("matrix")
+local Matrix = require("ff.aoc.matrix")
 
 local function isXMAS(map, cell, dir)
 	-- try out the letters in sequence in a given direction

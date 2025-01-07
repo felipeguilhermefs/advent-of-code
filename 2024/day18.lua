@@ -1,6 +1,6 @@
 local HashMap = require("ff.collections.hashmap")
 local Queue = require("ff.collections.queue")
-local Matrix = require("matrix")
+local Matrix = require("ff.aoc.matrix")
 
 local SPACE = "."
 local BLOCK = "#"

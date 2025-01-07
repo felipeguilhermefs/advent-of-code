@@ -2,7 +2,7 @@ local HashMap = require("ff.collections.hashmap")
 local Heap = require("ff.collections.heap")
 local Queue = require("ff.collections.queue")
 local Set = require("ff.collections.set")
-local Matrix = require("matrix")
+local Matrix = require("ff.aoc.matrix")
 
 local START = "S"
 local END = "E"

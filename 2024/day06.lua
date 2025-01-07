@@ -1,5 +1,5 @@
 local Set = require("ff.collections.set")
-local Matrix = require("matrix")
+local Matrix = require("ff.aoc.matrix")
 
 local TURN = {
 	[Matrix.N] = Matrix.E,
