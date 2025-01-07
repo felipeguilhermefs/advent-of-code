@@ -1,5 +1,6 @@
 local HashMap = require("ff.collections.hashmap")
 local Heap = require("ff.collections.heap")
+local Set = require("ff.collections.set")
 
 local function readInput(filepath)
 	local wires = HashMap.new()
@@ -79,7 +80,78 @@ local function eval(wires, conns)
 	return num(allWires)
 end
 
+local function id(arr, reverse)
+	if reverse then
+		return string.format("%s:%s:%s", arr[3], arr[2], arr[1])
+	end
+
+	return table.concat(arr, ":")
+end
+
+local function mapGates(conns)
+	local xors, ands = HashMap.new(), HashMap.new()
+
+	for res, conn in pairs(conns) do
+		if conn[2] == "XOR" then
+			xors:compute(conn[1], function()
+				return HashMap.new()
+			end):put(conn[3], res)
+			xors:compute(conn[3], function()
+				return HashMap.new()
+			end):put(conn[1], res)
+		elseif conn[2] == "AND" then
+			ands:compute(conn[1], function()
+				return HashMap.new()
+			end):put(conn[3], res)
+			ands:compute(conn[3], function()
+				return HashMap.new()
+			end):put(conn[1], res)
+		end
+	end
+
+	return xors, ands
+end
+
+local function findWrongConns(conns)
+	local xors, ands = mapGates(conns)
+
+	local wrong = Set.new()
+
+	for i = 1, 44 do
+		local x = string.format("x%02d", i)
+		local y = string.format("y%02d", i)
+		local z = string.format("z%02d", i)
+
+		local conn = conns:get(z)
+
+		local xor = xors:get(x):get(y)
+
+		if conn[2] ~= "XOR" then
+			wrong:add(z)
+		end
+
+		local carry = xors:get(xor)
+		if carry == nil then
+			wrong:add(xor)
+			wrong:add(ands:get(x):get(y))
+		else
+			for xor2 in pairs(carry) do
+				if xors:get(xor2):get(xor) ~= z then
+					wrong:add(xors:get(xor2):get(xor))
+				end
+			end
+		end
+	end
+
+	local gates = {}
+	for w in pairs(wrong) do
+		table.insert(gates, w)
+	end
+	table.sort(gates)
+	return table.concat(gates, ",")
+end
+
 return function(filepath)
 	local wires, conns = readInput(filepath)
-	return eval(wires, conns), 0
+	return eval(wires, conns), findWrongConns(conns)
 end
