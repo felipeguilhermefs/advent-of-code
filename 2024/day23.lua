@@ -40,50 +40,54 @@ local function lan3(connections)
 	return #lans
 end
 
-local function combinations(connections, size)
-	local arr = Array.new()
-	for item in pairs(connections) do
-		arr:insert(item)
-	end
-	sort(arr)
-
-	local res = Array.new()
-	for i = size, #arr do
-		local base = Set.new()
-		for k = i - size + 1, i - 1 do
-			base:add(arr:get(k))
+local function bronKerbosch(graph, cliques, current, candidates, excluded)
+	if candidates:empty() and excluded:empty() then
+		if #current > 2 then
+			cliques:add(current)
 		end
+		return
+	end
 
-		for j = i, #arr do
-			local combi = Set.new(base)
-			combi:add(arr:get(j))
-			res:insert(combi)
+	local pivot, max = nil, nil
+	for vertex in pairs(candidates:union(excluded)) do
+		local size = #graph:get(vertex)
+		if max == nil or max < size then
+			max = size
+			pivot = vertex
 		end
 	end
-	return pairs(res)
+
+	local possibles = candidates:diff(graph:get(pivot))
+	for vertex in pairs(possibles) do
+		local newClique = Set.new(current)
+		newClique:add(vertex)
+
+		local newCandidates = candidates:intersection(graph:get(vertex))
+		local newExcluded = excluded:intersection(graph:get(vertex))
+
+		bronKerbosch(graph, cliques, newClique, newCandidates, newExcluded)
+
+		candidates:remove(vertex)
+		excluded:add(vertex)
+	end
 end
 
 local function maxLan(connections)
-	local maxCount = 0
-	local max = Set.new()
-	for computer, connected in pairs(connections) do
-		local size = #connected
-		while size > maxCount - 1 do
-			for _, combi in combinations(connected, size) do
-				local lan = Set.new(combi)
-				lan:add(computer)
-				for other in pairs(combi) do
-					lan = lan:intersection(connections:get(other))
-					lan:add(other)
-				end
-				if #lan > maxCount then
-					maxCount = #lan
-					max = lan
-				end
-			end
-			size = size - 1
+	local lans = Set.new()
+	local candidates = Set.new()
+	for conn in pairs(connections) do
+		candidates:add(conn)
+	end
+
+	bronKerbosch(connections, lans, Set.new(), candidates, Set.new())
+
+	local max = nil
+	for lan in pairs(lans) do
+		if max == nil or #max < #lan then
+			max = lan
 		end
 	end
+
 	return id(max)
 end
 
