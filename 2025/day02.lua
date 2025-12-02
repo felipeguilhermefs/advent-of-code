@@ -15,25 +15,28 @@ local function replicate(seq, times)
 end
 
 -- Generate invalid ids after low boundary
-local function generate(low, times)
-	local seq = tonumber(low:sub(1, #low // times)) or 1
+local function generate(low, parts)
+	local seq = tonumber(low:sub(1, math.floor(#low / parts))) or 1
 
 	return function()
-		local id = replicate(seq, times)
+		local id = replicate(seq, parts)
 		seq = seq + 1
 		return id
 	end
 end
 
-local function part1(filepath)
-	local sum = 0
+-- Sum invalid IDs spliting parts
+local function sum(low, high, from_parts, to_parts)
+	local total = 0
 
-	for low, high in parse(filepath) do
-		local min, max = tonumber(low), tonumber(high)
+	local min, max = tonumber(low), tonumber(high)
 
-		for id in generate(low, 2) do
-			if id >= min and id <= max then
-				sum = sum + id
+	local seen = {}
+	for split = from_parts, to_parts do
+		for id in generate(low, split) do
+			if id >= min and id <= max and not seen[id] then
+				seen[id] = true
+				total = total + id
 			end
 
 			if id > max then
@@ -42,33 +45,16 @@ local function part1(filepath)
 		end
 	end
 
-	return sum
-end
-
-local function part2(filepath)
-	local sum = 0
-
-	for low, high in parse(filepath) do
-		local min, max = tonumber(low), tonumber(high)
-
-		local seen = {}
-		for split = 2, #high do
-			for id in generate(low, split) do
-				if id >= min and id <= max and not seen[id] then
-					seen[id] = true
-					sum = sum + id
-				end
-
-				if id > max then
-					break
-				end
-			end
-		end
-	end
-
-	return sum
+	return total
 end
 
 return function(filepath)
-	return part1(filepath), part2(filepath)
+	local part1 = 0
+	local part2 = 0
+	for low, high in parse(filepath) do
+		part1 = part1 + sum(low, high, 2, 2)
+		part2 = part2 + sum(low, high, 2, #high)
+	end
+
+	return part1, part2
 end
