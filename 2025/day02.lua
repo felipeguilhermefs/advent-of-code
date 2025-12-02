@@ -6,34 +6,38 @@ local function parse(filepath)
 end
 
 --Replicate a sequence a number of times
-local function replicate(seq, times)
-	local comb = {}
+local function replicate(sequence, times)
+	local repetitions = {}
 	for _ = 1, times do
-		table.insert(comb, seq)
+		table.insert(repetitions, sequence)
 	end
-	return tonumber(table.concat(comb))
+	return tonumber(table.concat(repetitions))
 end
 
--- Generate invalid ids after low boundary
-local function generate(low, parts)
-	local seq = tonumber(low:sub(1, math.floor(#low / parts))) or 1
+--Slice the most significant part of a numeric string
+local function slice(num, parts)
+	return tonumber(num:sub(1, math.floor(#num / parts))) or 1
+end
+
+-- Generate invalid ids around the low boundary
+local function generate(num, parts)
+	local sequence = slice(num, parts)
 
 	return function()
-		local id = replicate(seq, parts)
-		seq = seq + 1
+		local id = replicate(sequence, parts)
+		sequence = sequence + 1
 		return id
 	end
 end
 
--- Sum invalid IDs spliting parts
-local function sum(low, high, from_parts, to_parts)
+local function sum_invalids(low, high, min_parts, max_parts)
 	local total = 0
 
 	local min, max = tonumber(low), tonumber(high)
 
 	local seen = {}
-	for split = from_parts, to_parts do
-		for id in generate(low, split) do
+	for parts = min_parts, max_parts do
+		for id in generate(low, parts) do
 			if id >= min and id <= max and not seen[id] then
 				seen[id] = true
 				total = total + id
@@ -52,8 +56,8 @@ return function(filepath)
 	local part1 = 0
 	local part2 = 0
 	for low, high in parse(filepath) do
-		part1 = part1 + sum(low, high, 2, 2)
-		part2 = part2 + sum(low, high, 2, #high)
+		part1 = part1 + sum_invalids(low, high, 2, 2)
+		part2 = part2 + sum_invalids(low, high, 2, #high)
 	end
 
 	return part1, part2
