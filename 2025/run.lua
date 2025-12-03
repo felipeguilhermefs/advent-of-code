@@ -1,3 +1,5 @@
+local unpack = unpack or table.unpack
+
 local function readDays()
 	local days = {}
 	if arg[1] then
@@ -17,7 +19,7 @@ local function result(filepath)
 		table.insert(results, line)
 	end
 
-	return table.unpack(results)
+	return unpack(results)
 end
 
 local function runDay(d)
