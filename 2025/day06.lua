@@ -45,7 +45,7 @@ local function part1(filepath)
 		end
 	end
 
-	return reduce(0, problems, add), 0
+	return reduce(0, problems, add)
 end
 
 local ASCII_SPACE = 32
