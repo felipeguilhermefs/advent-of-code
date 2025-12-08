@@ -10,53 +10,46 @@ end
 local START = 83
 local SPLIT = 94
 
-local function countBeams(line, prevBeams)
+local function countBeams(line, beams)
 	local splits = 0
-	local currentBeams = {}
+	local first = #beams == 0
 	for i = 1, #line do
-		if prevBeams == nil then
+		if first then
 			-- Initialize the beam count
 
 			if line:byte(i) == START then
-				currentBeams[i] = 1
+				beams[i] = 1
 			else
-				currentBeams[i] = 0
+				beams[i] = 0
 			end
 		else
 			-- Propagate or split beams
 
-			local count = prevBeams[i]
-
-			if line:byte(i) ~= SPLIT then
-				-- if not a split, just propagate
-				currentBeams[i] = count + (currentBeams[i] or 0)
-			else
-				if count > 0 then
+			if line:byte(i) == SPLIT then
+				if beams[i] > 0 then
 					-- count only if there was a beam above
 					splits = splits + 1
 				end
 
-				-- if split, then there is no beam here
-				currentBeams[i] = 0
-
 				-- beam count is accumulated on both directions
-				currentBeams[i - 1] = count + currentBeams[i - 1]
-				currentBeams[i + 1] = count + (currentBeams[i + 1] or 0)
+				beams[i - 1] = beams[i] + beams[i - 1]
+				beams[i + 1] = beams[i] + beams[i + 1]
+
+				-- if split, then there is no beam here
+				beams[i] = 0
 			end
 		end
 	end
 
-	return splits, currentBeams
+	return splits
 end
 
 return function(filepath)
 	local splits = 0
-	local beams = nil
+	local beams = {}
 
 	for line in io.lines(filepath) do
-		local newSplits, currentBeams = countBeams(line, beams)
-		splits = splits + newSplits
-		beams = currentBeams
+		splits = splits + countBeams(line, beams)
 	end
 
 	return splits, sum(beams)
