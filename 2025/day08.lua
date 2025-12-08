@@ -55,7 +55,7 @@ local function initializeCircuits(boxes)
 	return circuits
 end
 
-local function part1(circuits, top)
+local function largestCircuits(circuits, top)
 	local uniq = Set.new() .. circuits
 
 	local largest = function(a, b)
@@ -83,31 +83,35 @@ local function part1(circuits, top)
 	return res
 end
 
-return function(filepath)
+local function main(filepath)
 	local boxes = parseJunctionBoxes(filepath)
 
 	local distances = calculateDistances(boxes)
 	local circuits = initializeCircuits(boxes)
 
 	local countdown = 1000
-	local largest = 0
+	local part1 = 0
 	while true do
 		local pair = distances:pop()
 
+		-- union circuits
 		circuits[pair.a] = circuits[pair.a] .. circuits[pair.b]
 
+		-- update other references
 		for i in pairs(circuits[pair.b]) do
 			circuits[i] = circuits[pair.a]
 		end
 
 		if countdown == 1 then
-			largest = part1(circuits, 3)
+			part1 = largestCircuits(circuits, 3)
 		end
 
 		if #circuits[pair.a] == #boxes then
 			local part2 = boxes[pair.a].x * boxes[pair.b].x
-			return largest, part2
+			return part1, part2
 		end
 		countdown = countdown - 1
 	end
 end
+
+print(main("day08.in"))
