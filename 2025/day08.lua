@@ -3,13 +3,13 @@ local Heap = require("ff.collections.heap")
 local Set = require("ff.collections.set")
 
 local function parseJunctionBoxes(filepath)
-	local jb = {}
+	local boxes = {}
 	for line in io.lines(filepath) do
 		local x, y, z = line:match("(%d+),(%d+),(%d+)")
 
-		table.insert(jb, { x = tonumber(x), y = tonumber(y), z = tonumber(z) })
+		table.insert(boxes, { x = tonumber(x), y = tonumber(y), z = tonumber(z) })
 	end
-	return jb
+	return boxes
 end
 
 local function distance(a, b)
@@ -17,19 +17,19 @@ local function distance(a, b)
 	return math.pow(a.x - b.x, 2) + math.pow(a.y - b.y, 2) + math.pow(a.z - b.z, 2)
 end
 
-local function calculateDistances(boxes)
-	local closest = function(a, b)
-		if a.distance > b.distance then
-			return Comparator.greater
-		end
-
-		if a.distance < b.distance then
-			return Comparator.less
-		end
-
-		return Comparator.equal
+local function closest(a, b)
+	if a.distance > b.distance then
+		return Comparator.greater
 	end
 
+	if a.distance < b.distance then
+		return Comparator.less
+	end
+
+	return Comparator.equal
+end
+
+local function calculateDistances(boxes)
 	local distances = Heap.new(closest)
 
 	for i = 1, #boxes do
@@ -55,35 +55,27 @@ local function initializeCircuits(boxes)
 	return circuits
 end
 
-local function largestCircuits(circuits, top)
-	local uniq = Set.new() .. circuits
-
-	local largest = function(a, b)
-		if #a < #b then
-			return Comparator.greater
-		end
-
-		if #a > #b then
-			return Comparator.less
-		end
-
-		return Comparator.equal
+local function largest(a, b)
+	if #a < #b then
+		return Comparator.greater
 	end
 
-	local heap = Heap.new(largest)
-	for circuit in pairs(uniq) do
-		heap:push(circuit)
+	if #a > #b then
+		return Comparator.less
 	end
 
-	local res = 1
-	for _ = 1, top do
-		local circuit = heap:pop()
-		res = res * #circuit
-	end
-	return res
+	return Comparator.equal
 end
 
-local function main(filepath)
+local function top3Circuits(circuits)
+	local uniq = Set.new() .. circuits
+
+	local heap = Heap.new(largest) .. uniq
+
+	return #heap:pop() * #heap:pop() * #heap:pop()
+end
+
+return function(filepath)
 	local boxes = parseJunctionBoxes(filepath)
 
 	local distances = calculateDistances(boxes)
@@ -103,7 +95,7 @@ local function main(filepath)
 		end
 
 		if countdown == 1 then
-			part1 = largestCircuits(circuits, 3)
+			part1 = top3Circuits(circuits)
 		end
 
 		if #circuits[pair.a] == #boxes then
@@ -113,5 +105,3 @@ local function main(filepath)
 		countdown = countdown - 1
 	end
 end
-
-print(main("day08.in"))
