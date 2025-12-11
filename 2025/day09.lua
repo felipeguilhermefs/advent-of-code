@@ -67,32 +67,42 @@ local function pointInVertex(vertex, point)
 	end
 end
 
-local function isAnyPointInSquare(poligon, a, b)
+local function anyVertexInRectangle(poligon, a, b)
 	local minX, maxX = math.min(a.point.x, b.point.x), math.max(a.point.x, b.point.x)
 	local minY, maxY = math.min(a.point.y, b.point.y), math.max(a.point.y, b.point.y)
 
 	for _, vertex in pairs(poligon) do
-		if
-			(minX >= vertex.point.x or vertex.point.x >= maxX) and (minY >= vertex.point.y or vertex.point.y >= maxY)
-		then
+		local isBelow = minX >= vertex.point.x
+		local isAbove = vertex.point.x >= maxX
+		local isOverLeft = minY >= vertex.point.y
+		local isOverRight = vertex.point.y >= maxY
+
+		if (isBelow or isAbove) and (isOverLeft or isOverRight) then
 			goto continue
 		end
 
-		if minX < vertex.point.x and vertex.point.x < maxX then
-			if minY < vertex.point.y and vertex.point.y < maxY then
+		local goingUp = vertex.next.y > vertex.point.y
+		local goingRight = vertex.next.x > vertex.point.x
+		local crossedAbove = vertex.next.y > maxY
+		local crossedBelow = vertex.next.y < minY
+		local crossedRight = vertex.next.x > maxX
+		local crossedLeft = vertex.next.x < minX
+
+		if not isBelow and not isAbove then
+			if not isOverLeft and not isOverRight then
 				return true
-			elseif vertex.next.y > vertex.point.y then
-				if vertex.point.y < minY and vertex.next.y > maxY then
+			elseif goingUp then
+				if isOverLeft and crossedAbove then
 					return true
 				end
-			elseif vertex.next.y < minY and vertex.point.y > maxY then
+			elseif crossedBelow and isOverRight then
 				return true
 			end
-		elseif vertex.next.x > vertex.point.x then
-			if vertex.point.x < minX and vertex.next.x > maxX then
+		elseif goingRight then
+			if isBelow and crossedRight then
 				return true
 			end
-		elseif vertex.next.x < minX and vertex.point.x > maxX then
+		elseif crossedLeft and isAbove then
 			return true
 		end
 		::continue::
@@ -110,7 +120,7 @@ local function rectangleInPoligon(poligon, a, b)
 		return false
 	end
 
-	if isAnyPointInSquare(poligon, a, b) then
+	if anyVertexInRectangle(poligon, a, b) then
 		return false
 	end
 
