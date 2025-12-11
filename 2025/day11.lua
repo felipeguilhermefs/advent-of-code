@@ -1,17 +1,13 @@
-local HashMap = require("ff.collections.hashmap")
-local Set = require("ff.collections.set")
-
 local function buildRack(filepath)
-	local rack = HashMap.new()
-	-- for line in io.lines("sample.in") do
+	local rack = {}
 	for line in io.lines(filepath) do
 		local key = nil
 		for server in line:gmatch("(%a+)") do
 			if key == nil then
 				key = server
-				rack:put(key, Set.new())
+				rack[key] = {}
 			else
-				rack:get(key):add(server)
+				table.insert(rack[key], server)
 			end
 		end
 	end
@@ -23,17 +19,19 @@ local function countPaths(rack, from, to, counter)
 		return 1
 	end
 
-	if counter:contains(from) then
-		return counter:get(from)
+	counter = counter or {}
+	if counter[from] then
+		return counter[from]
 	end
 
 	local count = 0
+	local outputs = rack[from] or {}
 
-	for output in pairs(rack:get(from, {})) do
+	for _, output in pairs(outputs) do
 		count = count + countPaths(rack, output, to, counter)
 	end
 
-	counter:put(from, count)
+	counter[from] = count
 
 	return count
 end
@@ -41,11 +39,9 @@ end
 return function(filepath)
 	local rack = buildRack(filepath)
 
-	local part1 = countPaths(rack, "you", "out", HashMap.new())
+	local part1 = countPaths(rack, "you", "out")
 
-	local part2 = countPaths(rack, "svr", "fft", HashMap.new())
-		* countPaths(rack, "fft", "dac", HashMap.new())
-		* countPaths(rack, "dac", "out", HashMap.new())
+	local part2 = countPaths(rack, "svr", "fft") * countPaths(rack, "fft", "dac") * countPaths(rack, "dac", "out")
 
 	return part1, part2
 end
