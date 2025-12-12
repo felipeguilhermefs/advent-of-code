@@ -1,38 +1,29 @@
 local function parse(filepath)
 	local shapes, regions = {}, {}
-	local shape, index, row = { format = {}, size = 0 }, 1, 1
+	local shapeSize, index = 0, 1
 	for line in io.lines(filepath) do
+		-- only 6 shapes to parse
 		if #shapes < 6 then
+			-- blank like marks the end of a shape
 			if line == "" then
-				shapes[index] = shape
+				shapes[index] = shapeSize
 				index = index + 1
-				row = 1
-				shape = { format = {}, size = 0 }
+				shapeSize = 0
 			elseif tonumber(line:match("(%d):")) == nil then
+				-- if the line does not start with a number then it is the shape
 				for val in line:gmatch(".") do
-					if shape.format[row] == nil then
-						shape.format[row] = {}
-					end
-
-					table.insert(shape.format[row], val)
-
+					-- we want to know the shape size
 					if val == "#" then
-						shape.size = shape.size + 1
+						shapeSize = shapeSize + 1
 					end
 				end
-
-				row = row + 1
 			end
 		else
 			local rows, cols = line:match("(%d+)x(%d+):")
-			local countShapes = {}
 
+			local countShapes = {}
 			for val in line:sub(7):gmatch("(%d+)") do
 				table.insert(countShapes, tonumber(val))
-			end
-
-			if tonumber(rows) == nil then
-				print("HERE:", line)
 			end
 
 			local region = { rows = tonumber(rows), cols = tonumber(cols), shapes = countShapes }
@@ -51,7 +42,7 @@ return function(filepath)
 		local available = region.rows * region.cols
 		local required = 0
 		for index, countShape in pairs(region.shapes) do
-			required = required + (countShape * shapes[index].size)
+			required = required + (countShape * shapes[index])
 		end
 
 		if available >= required then
@@ -59,5 +50,5 @@ return function(filepath)
 		end
 	end
 
-	return total
+	return total, 0
 end
